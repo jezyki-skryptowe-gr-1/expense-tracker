@@ -1,55 +1,9 @@
 projects:
   - name: Expense Tracker
     environments:
-      - name: Dev
-        databases:
-        - name: example-tracker
-          databaseName: db1_pbny
-          user: superuser
-          plan: free
-          region: frankfurt
-          ipAllowList:
-          - source: 0.0.0.0/0
-            description: everywhere
-        postgresMajorVersion: "17"
-        services:
-          - type: web
-            plan: free
-            name: expense-tracker-backend-dev
-            runtime: python
-            repo: https://github.com/daruc/pracownia-jezykow-skryptowych-gr-1
-            branch: dev
-            autoDeployTrigger: commit
-            buildCommand: pip install -r backend/requirements.txt
-            startCommand: gunicorn -w 2 -b 0.0.0.0:$PORT backend.app:app
-            healthCheckPath: /health
-            envVars:
-              - key: PYTHON_VERSION
-                value: 3.14.0
-              - key: CORS_ALLOW_ALL
-                value: "true"
-              - key: PW_DEFAULT_LENGTH
-                value: "16"
-              - key: PW_MIN_LENGTH
-                value: "4"
-              - key: PW_MAX_LENGTH
-                value: "128"
-
-          - type: web
-            name: expense-tracker-frontend-dev
-            runtime: static
-            repo: https://github.com/daruc/pracownia-jezykow-skryptowych-gr-1
-            branch: dev
-            autoDeployTrigger: commit
-            buildCommand: cd frontend && npm install && npm run build
-            staticPublishPath: frontend/dist
-            envVars:
-              - key: VITE_API_BASE_URL_DEV
-                value: https://<backend-dev-host>
-
       - name: Production
         databases:
-        - name: example-tracker
+        - name: example-tracker-prod
           databaseName: db1_pbny
           user: superuser
           plan: free
@@ -57,7 +11,7 @@ projects:
           ipAllowList:
           - source: 0.0.0.0/0
             description: everywhere
-        postgresMajorVersion: "17"
+          postgresMajorVersion: "17"
         services:
           - type: web
             plan: free
