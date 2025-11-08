@@ -1,2 +1,3 @@
-# pracownia-jezykow-skryptowych-gr-1
-Pracownia języków skryptowych - projekt grupy 1
+# Expense Tracker
+Projekt na pracownię języków skryptowych
+Grupa 1
