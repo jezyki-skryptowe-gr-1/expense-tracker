@@ -13,21 +13,9 @@ jobs:
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
-      - name: Create .pgpass
-        run: |
-          echo "$REAL_PG_HOST:5432:$REAL_PG_DB:$REAL_PG_USER:$REAL_PG_PASS" > ~/.pgpass
-          chmod 600 ~/.pgpass
-        env:
-          REAL_PG_HOST: ${{ secrets.POSTGRES_HOST }}
-          REAL_PG_DB: ${{ secrets.POSTGRES_DB }}
-          REAL_PG_USER: ${{ secrets.POSTGRES_USER }}
-          REAL_PG_PASS: ${{ secrets.POSTGRES_PASSWORD }}
-
       - name: Test DB connection
         run: |
-          PGPASSWORD="$REAL_PG_PASS" \
-          psql -h "$REAL_PG_HOST" -U "$REAL_PG_USER" -d "$REAL_PG_DB" \
-            -c "SELECT current_database();"
+          psql "host=$REAL_PG_HOST dbname=$REAL_PG_DB user=$REAL_PG_USER password=$REAL_PG_PASS" -c '\l'
         env:
           REAL_PG_HOST: ${{ secrets.POSTGRES_HOST }}
           REAL_PG_DB: ${{ secrets.POSTGRES_DB }}
