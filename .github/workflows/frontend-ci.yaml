@@ -7,15 +7,16 @@ on:
     paths:
       - 'frontend/**'
       - 'tools/*-frontend'
-      - '.github/workflows/frontend*'
+      - '.github/workflows/frontend-*'
   pull_request:
     branches:
       - '**'
     paths:
       - 'frontend/**'
       - 'tools/*-frontend'
-      - '.github/workflows/frontend*'
+      - '.github/workflows/frontend-*'
   workflow_dispatch:
+
 
 jobs:
   build:
