@@ -14,8 +14,8 @@ function start-backend() {
     GUNICORN_WORKERS="${1:-2}"
     BACKEND_HOST="${2:-0.0.0.0}"
     BACKEND_PORT="${3:-5000}"
-    exec gunicorn -w "$(GUNICORN_WORKERS)" \
-        -b "$(BACKEND_HOST):$(BACKEND_PORT)" \
+    exec gunicorn -w "${GUNICORN_WORKERS}" \
+        -b "${BACKEND_HOST}:${BACKEND_PORT}" \
         backend.app:app
 }
 
@@ -27,6 +27,10 @@ function build-frontend() {
 
 function start-frontend() {
     npm run --prefix ${FRONTEND_DIR} dev
+}
+
+function test-backend() {
+    pytest ${BACKEND_DIR}/tests/users_repository_test.py
 }
 
 `basename $0` $@
