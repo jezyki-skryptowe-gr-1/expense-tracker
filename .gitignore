@@ -53,6 +53,8 @@ cover/
 **node_modules/
 **/package-lock.json
 frontend/src/routeTree.gen.ts
+./package.json
+./package-lock.json
 
 # Translations
 *.mo

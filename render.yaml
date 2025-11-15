@@ -3,7 +3,7 @@ projects:
     environments:
       - name: Production
         databases:
-        - name: example-tracker-prod
+        - name: expense-tracker-db-prod
           databaseName: db1_pbny
           user: superuser
           plan: free
@@ -12,12 +12,13 @@ projects:
           - source: 0.0.0.0/0
             description: everywhere
           postgresMajorVersion: "17"
+
         services:
           - type: web
             plan: free
             name: expense-tracker-backend-prod
             runtime: python
-            repo: https://github.com/daruc/pracownia-jezykow-skryptowych-gr-1
+            repo: https://github.com/jezyki-skryptowe-gr-1/pracownia-jezykow-skryptowych-gr-1
             branch: main
             autoDeployTrigger: commit
             buildCommand: make build-backend
@@ -32,7 +33,7 @@ projects:
           - type: web
             name: expense-tracker-frontend-prod
             runtime: static
-            repo: https://github.com/daruc/pracownia-jezykow-skryptowych-gr-1
+            repo: https://github.com/jezyki-skryptowe-gr-1/pracownia-jezykow-skryptowych-gr-1
             branch: main
             autoDeployTrigger: commit
             buildCommand: make build-frontend

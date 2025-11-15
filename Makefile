@@ -22,7 +22,7 @@ build-backend:
 	pip install -r $(BACKEND_DIR)/requirements.txt
 
 start-backend: build-backend
-	exec gunicorn -w "$(GUNICORN_WORKERS)" -b "$(BACKEND_HOST):$(BACKEND_PORT)" backend.app:app
+	export PYTHONPATH="$(PROJECT_ROOT)" && exec gunicorn -w "$(GUNICORN_WORKERS)" -b "$(BACKEND_HOST):$(BACKEND_PORT)" backend.app:app
 
 backend: start-backend
 
@@ -33,12 +33,12 @@ build-frontend:
 	rm $(PROJECT_ROOT)/package.json $(PROJECT_ROOT)/package-lock.json 
 
 start-frontend:
-	npm run --prefix $(FRONTEND_DIR) start
+	npm run --prefix $(FRONTEND_DIR) dev
 
 frontend: start-frontend
 
 # Dev goals
 dev: start-backend 
-	npm run --prefix $(FRONTEND_DIR) serve
+	npm run --prefix $(FRONTEND_DIR) dev
 
 build: build-frontend build-backend
