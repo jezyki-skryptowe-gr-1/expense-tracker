@@ -22,7 +22,7 @@ jobs:
           echo "REAL_PG_PASS=${{ secrets.POSTGRES_PASSWORD }}" >> $GITHUB_ENV
 
       - name: Make script executable
-        run: chmod +x run-init.sh
+        run: chmod +x /bash/db/init-sql.sh
 
       - name: Run init script
-        run: ./run-init.sh
+        run: /bash/db/init-sql.sh
