@@ -24,6 +24,16 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
 
+      - name: Test DB connection
+        run: |
+          psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT current_database();" || \
+          echo "❌ Connection failed"
+        env:
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+
 
       - name: Wait for DB to be ready
         env:
