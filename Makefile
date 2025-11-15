@@ -10,7 +10,7 @@ BACKEND_HOST ?= "0.0.0.0"
 BACKEND_PORT ?= "5000"
 
 # Checks if commands exist
-EXECUTABLES = pip gunicorn npm
+EXECUTABLES = pip npm
 K := $(foreach exec,$(EXECUTABLES),\
         $(if $(shell which $(exec)),some string,$(error "No $(exec) in PATH")))
 
