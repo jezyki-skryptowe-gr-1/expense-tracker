@@ -1,7 +1,7 @@
 name: Run init.sql on production database
 
 on:
-  workflow_dispatch:   # ręczne uruchomienie
+  workflow_dispatch:
 
 jobs:
   run-sql:
@@ -14,16 +14,6 @@ jobs:
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
-      - name: Debug secrets (safe)
-        run: |
-          echo "POSTGRES_HOST length: ${#POSTGRES_HOST}"
-          echo "POSTGRES_USER length: ${#POSTGRES_USER}"
-          echo "POSTGRES_DB length: ${#POSTGRES_DB}"
-        env:
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-
       - name: Create .pgpass
         run: |
           echo "$POSTGRES_HOST:5432:$POSTGRES_DB:$POSTGRES_USER:$POSTGRES_PASSWORD" > ~/.pgpass
@@ -34,17 +24,16 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
 
-
       - name: Test DB connection
         run: |
-          psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" -c "SELECT current_database();" || \
-          echo "❌ Connection failed"
+          psql -h "$POSTGRES_HOST" -U "$POSTGRES_USER" -d "$POSTGRES_DB" \
+            -c "SELECT current_database();" \
+            || echo "❌ Connection failed"
         env:
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           PGPASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-
 
       - name: Wait for DB to be ready
         env:
