@@ -14,6 +14,17 @@ jobs:
       - name: Install PostgreSQL client
         run: sudo apt-get update && sudo apt-get install -y postgresql-client
 
+      - name: Debug secrets (safe)
+        run: |
+          echo "POSTGRES_HOST length: ${#POSTGRES_HOST}"
+          echo "POSTGRES_USER length: ${#POSTGRES_USER}"
+          echo "POSTGRES_DB length: ${#POSTGRES_DB}"
+        env:
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+
+
       - name: Wait for DB to be ready
         env:
           PGHOST: ${{ secrets.POSTGRES_HOST }}
