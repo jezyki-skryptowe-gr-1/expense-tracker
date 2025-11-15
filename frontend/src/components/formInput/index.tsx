@@ -3,6 +3,7 @@ import { type Path, useFormContext } from 'react-hook-form'
 import { FormControl, FormDescription, FormField, FormItem, FormMessage } from '../ui/form';
 import { Label } from '../ui/label';
 import { Input } from '../ui/input';
+import { Mail, Lock, User, type LucideIcon } from 'lucide-react';
 
 type Props<T> = {
     name: Path<T>;
@@ -11,6 +12,7 @@ type Props<T> = {
     type?: HTMLInputTypeAttribute;
     description?: string;
     disabled?: boolean;
+    icon?: LucideIcon;
 }
 
 const InputField = <T,>({
@@ -19,7 +21,8 @@ const InputField = <T,>({
     placeholder,
     description,
     disabled,
-    type = 'text'
+    type = 'text',
+    icon: Icon
 }: Props<T>) => {
     const { control } = useFormContext();
 
@@ -31,13 +34,17 @@ const InputField = <T,>({
                 <FormItem className='w-full'>
                     {label && <Label htmlFor={name} className='mb-1 font-semibold'>{label}</Label>}
                     <FormControl>
-                        <Input
-                            {...field}
-                            id={name}
-                            placeholder={placeholder}
-                            type={type}
-                            disabled={disabled}
-                        />
+                        <div className="relative">
+                            {Icon && <Icon className="absolute left-3 top-1/2 -translate-y-1/2 size-4 text-muted-foreground" />}
+                            <Input
+                                {...field}
+                                id={name}
+                                placeholder={placeholder}
+                                type={type}
+                                disabled={disabled}
+                                className={`pl-10 h-11 bg-input border-border/50 focus-visible:ring-primary`}
+                            />
+                        </div>
                     </FormControl>
                     {description && <FormDescription>{description}</FormDescription>}
                     <FormMessage />
