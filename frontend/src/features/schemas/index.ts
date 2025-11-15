@@ -11,3 +11,15 @@ export const signupSchema = z.object({
 })
 
 export type SignupFormData = z.infer<typeof signupSchema>
+
+export const loginSchema = z.object({
+    email: z
+        .string()
+        .min(1, { message: 'Email jest wymagany' })
+        .email({ message: 'Nieprawidłowy format email' }),
+    password: z
+        .string()
+        .min(8, { message: 'Hasło musi mieć minimum 8 znaków' })
+})
+
+export type LoginFormData = z.infer<typeof loginSchema>
