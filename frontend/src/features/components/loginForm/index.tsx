@@ -8,6 +8,7 @@ import {
 import FormInput from '@/components/formInput'
 import { loginSchema, type LoginFormData } from '@/features/schemas'
 import { Lock, Mail } from 'lucide-react'
+import { Link } from '@tanstack/react-router'
 
 const LoginForm = () => {
     const form = useForm<LoginFormData>({
@@ -62,9 +63,9 @@ const LoginForm = () => {
             <CardFooter className="flex flex-col space-y-4">
                 <div className="text-sm text-center text-muted-foreground">
                     Nie masz konta?{' '}
-                    <a href="/signup" className="text-primary hover:underline font-medium">
+                    <Link to="/signup" className="text-primary hover:underline font-medium">
                         Zarejestruj się
-                    </a>
+                    </Link>
                 </div>
             </CardFooter>
         </Card>
