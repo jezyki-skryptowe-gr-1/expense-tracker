@@ -47,6 +47,6 @@ jobs:
   call-deploy:
     needs: db-tests
     if: github.ref == 'refs/heads/main'
-    uses: ./.github/workflows/deploy.yaml@main
+    uses: ./.github/workflows/deploy.yaml
     secrets:
       HOOK_URL: ${{ secrets.RENDER_BACKEND_PROD_HOOK }}
