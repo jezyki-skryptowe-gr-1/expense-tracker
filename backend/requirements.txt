@@ -11,4 +11,4 @@ gunicorn==21.2.0
 psycopg[binary]==3.2.12
 pytest==9.0.1
 testcontainers[postgres]==4.13.3
-
+flask_jwt_extended==4.7.1

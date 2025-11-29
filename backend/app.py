@@ -9,6 +9,7 @@ from services.categories_service import CategoriesService
 from services.users_service import UsersService
 from config import AppConfig
 from services.expenses_service import ExpensesService
+from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity
 
 
 def create_app() -> Flask:
@@ -18,6 +19,13 @@ def create_app() -> Flask:
     users_service = UsersService.get_singleton()
 
     app = Flask(__name__)
+
+    # JWT
+    app.config['SECRET_KEY'] = 'your_strong_secret_key'
+    app.config["JWT_SECRET_KEY"] = 'your_jwt_secret_key'
+    app.config['JWT_TOKEN_LOCATION'] = ['headers']
+
+    jwt = JWTManager(app)
 
     # CORS
     if cfg.cors_allow_all:
@@ -31,16 +39,13 @@ def create_app() -> Flask:
         return jsonify({"status": "ok"}), 200
 
     @app.post("/api/v1/me")
-    def add_user():
-        data = request.get_json()
-        lgn = data["login"]
-        password = data["password"]
-        # zwraca 401 jeśli nie jest zalogowany
-        # przyjmuje cookie
-        return "", 200
+    @jwt_required
+    def me():
+        lgn = get_jwt_identity()
+        return lgn, 200
 
     @app.post("/api/v1/register")
-    def add_user_2():
+    def add_user():
         data = request.get_json()
         lgn = data["login"]
         password = data["password"]
@@ -52,11 +57,13 @@ def create_app() -> Flask:
         lgn = data["login"]
         password = data["password"]
         response = {
-            "auth_token": 123   # todo
+            "auth_token": create_access_token(identity=lgn),
+            "refresh_token": create_refresh_token(identity=lgn)
         }
         return response, 200
 
     @app.put("/api/v1/refresh_token")
+    @jwt_required()
     def refresh_token():
         # zwraca cookie http-only
         response = {
@@ -65,6 +72,7 @@ def create_app() -> Flask:
         return jsonify(response), 200
 
     @app.put("/api/v1/update_user")
+    @jwt_required()
     def update_user():
         data = request.get_json()
         budget = data["budget"]
@@ -72,6 +80,7 @@ def create_app() -> Flask:
         return jsonify({"status": "ok"}), 200
 
     @app.post("/api/v1/add_expense")
+    @jwt_required()
     def add_expense():
         data = request.get_json()
         category = data["category"]
@@ -80,6 +89,7 @@ def create_app() -> Flask:
         return jsonify({"status": "ok"}), 200
 
     @app.put("/api/v1/update_expense")
+    @jwt_required()
     def update_expense():
         data = request.get_json()
         expense_id = data["expense_id"]
@@ -89,6 +99,7 @@ def create_app() -> Flask:
         return jsonify({"status": "ok"}), 200
 
     @app.delete("/api/v1/delete_expense")
+    @jwt_required()
     def register():
         data = request.get_json()
         expense_id = data["expense_id"]
@@ -96,11 +107,13 @@ def create_app() -> Flask:
         return jsonify({"status": "ok"}), 200
 
     @app.get("/api/v1/expenses")
+    @jwt_required()
     def expenses():
         expenses_list = expenses_service.get_expenses_list()
         return jsonify(expenses_list), 200
 
     @app.post("/api/v1/add_category")
+    @jwt_required()
     def add_category():
         data = request.get_json()
         category = data["category"]
@@ -108,6 +121,7 @@ def create_app() -> Flask:
         return jsonify({"status": "ok"}), 200
 
     @app.put("/api/v1/update_category")
+    @jwt_required()
     def update_category():
         data = request.get_json()
         category_id = data["category_id"]
@@ -116,6 +130,7 @@ def create_app() -> Flask:
         return jsonify({"status": "ok"}), 200
 
     @app.delete("/api/v1/delete_category")
+    @jwt_required()
     def delete_category():
         data = request.get_json()
         category_id = data["category_id"]
@@ -123,6 +138,7 @@ def create_app() -> Flask:
         return jsonify({"status": "ok"}), 200
 
     @app.get("/api/v1/categories")
+    @jwt_required()
     def categories():
         categories_list = categories_service.get_categories()
         return jsonify({"categories": categories_list}), 200
