@@ -34,4 +34,9 @@ function test-backend() {
     pytest tests/users_repository_test.py
 }
 
+function deploy-to-render() {
+    echo "URL: ${!1}"
+    curl -fsS -X POST "${!1}" && echo -e "\nTriggered PROD deploy on Render"
+}
+
 `basename $0` $@
