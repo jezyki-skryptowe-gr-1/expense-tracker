@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import os
+from datetime import timedelta
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -24,6 +25,8 @@ def create_app() -> Flask:
     app.config['SECRET_KEY'] = 'your_strong_secret_key'
     app.config["JWT_SECRET_KEY"] = 'your_jwt_secret_key'
     app.config['JWT_TOKEN_LOCATION'] = ['headers']
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
 
     jwt = JWTManager(app)
 
@@ -63,11 +66,13 @@ def create_app() -> Flask:
         return response, 200
 
     @app.put("/api/v1/refresh_token")
-    @jwt_required()
+    @jwt_required(refresh=True)
     def refresh_token():
         # zwraca cookie http-only
+        lgn = get_jwt_identity()
         response = {
-            "refresh_token": users_service.refresh_token()
+            "auth_token": create_access_token(identity=lgn),
+            "refresh_token": create_refresh_token(identity=lgn)
         }
         return jsonify(response), 200
 
