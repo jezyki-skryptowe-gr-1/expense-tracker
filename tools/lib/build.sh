@@ -14,9 +14,10 @@ function start-backend() {
     GUNICORN_WORKERS="${1:-2}"
     BACKEND_HOST="${2:-0.0.0.0}"
     BACKEND_PORT="${3:-5000}"
+    cd ${BACKEND_DIR}
     exec gunicorn -w "${GUNICORN_WORKERS}" \
         -b "${BACKEND_HOST}:${BACKEND_PORT}" \
-        backend.app:app
+        app:app
 }
 
 function build-frontend() {
