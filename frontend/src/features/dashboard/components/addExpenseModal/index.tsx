@@ -112,7 +112,7 @@ export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
                                                 <FormControl>
                                                     <Button
                                                         variant="outline"
-                                                        className={cn("w-[240px] pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                                                        className={cn("w-60 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
                                                     >
                                                         {field.value ? (
                                                             format(field.value, "PPP", { locale: pl })

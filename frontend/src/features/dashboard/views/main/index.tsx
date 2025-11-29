@@ -20,7 +20,7 @@ const MainDashboardView = () => {
     }
 
     const handleLogout = () => {
-        router.navigate({ to: "/" })
+        router.navigate({ to: "/", viewTransition: true })
     }
 
     return (
