@@ -13,6 +13,7 @@ type Props<T> = {
     description?: string;
     disabled?: boolean;
     icon?: LucideIcon;
+    step?: string;
 }
 
 const InputField = <T,>({
@@ -22,7 +23,8 @@ const InputField = <T,>({
     description,
     disabled,
     type = 'text',
-    icon: Icon
+    icon: Icon,
+    step
 }: Props<T>) => {
     const { control } = useFormContext();
 
@@ -42,7 +44,8 @@ const InputField = <T,>({
                                 placeholder={placeholder}
                                 type={type}
                                 disabled={disabled}
-                                className={`pl-10 h-11 bg-input border-border/50 focus-visible:ring-primary`}
+                                step={step}
+                                className={`pl-10 h-11 border-border/50 focus-visible:ring-primary`}
                             />
                         </div>
                     </FormControl>
