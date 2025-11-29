@@ -10,7 +10,7 @@ import { loginSchema, type LoginFormData } from '@/features/auth/schemas'
 import { Lock, Mail } from 'lucide-react'
 import { Link, useRouter } from '@tanstack/react-router'
 import { useLoginMutation } from '@/features/auth/query'
-import { toast } from 'react-toastify'
+// import { toast } from 'react-toastify'
 // import apiClient from '@/lib/api'
 
 const LoginForm = () => {
@@ -25,20 +25,22 @@ const LoginForm = () => {
         }
     })
 
-    const onSubmit = (data: LoginFormData) => {
-        loginMutation.mutate(data, {
-            onSuccess: async () => {
-                try {
-                    // await apiClient.get('/auth/me');
-                } catch (error) {
-                    console.error('Failed to fetch user data', error);
-                }
-                router.navigate({ to: '/dashboard' })
-            },
-            onError: (error: any) => {
-                toast.error(error.response?.data?.message || 'Błąd logowania')
-            }
-        })
+    const onSubmit = (_data: LoginFormData) => {
+        router.navigate({ to: '/dashboard', viewTransition: true })
+
+        // loginMutation.mutate(data, {
+        //     onSuccess: async () => {
+        //         try {
+        //             // await apiClient.get('/auth/me');
+        //         } catch (error) {
+        //             console.error('Failed to fetch user data', error);
+        //         }
+        //         router.navigate({ to: '/dashboard' })
+        //     },
+        //     onError: (error: any) => {
+        //         toast.error(error.response?.data?.message || 'Błąd logowania')
+        //     }
+        // })
     }
 
     return (
