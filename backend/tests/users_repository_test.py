@@ -26,8 +26,12 @@ def setup(request):
 
 @pytest.fixture(scope="function", autouse=True)
 def setup_date():
+    root_dir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
+    init_sql_path = os.path.join(root_dir, "sql", "init.sql")
+
     with db.connection.get_connection() as conn:
-        conn.execute(open("sql/init.sql", "r").read())
+        conn.execute(open(init_sql_path).read())
+
 
 
 def test_all_users():

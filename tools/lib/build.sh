@@ -30,7 +30,8 @@ function start-frontend() {
 }
 
 function test-backend() {
-    pytest ${BACKEND_DIR}/tests/users_repository_test.py
+    cd ${BACKEND_DIR}
+    pytest tests/users_repository_test.py
 }
 
 `basename $0` $@
