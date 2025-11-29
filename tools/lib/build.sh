@@ -31,7 +31,12 @@ function start-frontend() {
 
 function test-backend() {
     cd ${BACKEND_DIR}
-    pytest tests/users_repository_test.py
+    pytest
+}
+
+function deploy-to-render() {
+    echo "URL: ${!1}"
+    curl -fsS -X POST "${!1}" && echo -e "\nTriggered PROD deploy on Render"
 }
 
 `basename $0` $@

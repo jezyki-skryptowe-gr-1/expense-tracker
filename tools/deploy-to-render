@@ -1,5 +1,1 @@
-#!/usr/bin/env bash
-set -euo pipefail
-
-echo "URL: ${!1}"
-curl -fsS -X POST "${!1}" && echo "Triggered PROD deploy on Render"
+./lib/build.sh
