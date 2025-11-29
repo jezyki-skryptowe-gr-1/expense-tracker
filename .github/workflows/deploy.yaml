@@ -15,9 +15,9 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Deploy PROD
+        run: bash tools/deploy-to-render HOOK_URL
         if: github.ref == 'refs/heads/main'
         env:
           HOOK_URL: ${{ secrets.HOOK_URL }}
         with:
           HOOK_URL: ${{ secrets.HOOK_URL }}
-        run: bash tools/deploy-to-render HOOK_URL
