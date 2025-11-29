@@ -8,19 +8,22 @@ import {
 import FormInput from '@/components/formInput'
 import { loginSchema, type LoginFormData } from '@/features/auth/schemas'
 import { Lock, Mail } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
+import { Link, useRouter } from '@tanstack/react-router'
 
 const LoginForm = () => {
+    const router = useRouter()
+
     const form = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            email: '',
-            password: ''
+            email: 'test@test.com',
+            password: 'test1234'
         }
     })
 
     const onSubmit = (data: LoginFormData) => {
         console.log('Form submitted:', data)
+        router.navigate({ to: '/dashboard' })
     }
 
     return (

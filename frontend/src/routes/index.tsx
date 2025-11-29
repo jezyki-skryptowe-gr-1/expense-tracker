@@ -1,14 +1,6 @@
-import LoginForm from '@/features/auth/components/loginForm'
+import LoginView from '@/features/auth/views/login'
 import { createFileRoute } from '@tanstack/react-router'
 
 export const Route = createFileRoute('/')({
-    component: App,
+    component: LoginView,
 })
-
-function App() {
-    return (
-        <div className="text-center flex items-center justify-center w-full min-h-screen">
-            <LoginForm />
-        </div>
-    )
-}
