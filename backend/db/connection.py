@@ -1,4 +1,5 @@
 import psycopg
+from psycopg.rows import dict_row
 
 from config import AppConfig
 
@@ -10,4 +11,4 @@ def get_connection():
     username = cfg.db_username
     password = cfg.db_password
     database = cfg.database
-    return psycopg.connect(f"host={host} dbname={database} user={username} password={password} port={port}")
+    return psycopg.connect(f"host={host} dbname={database} user={username} password={password} port={port}", row_factory=dict_row)
