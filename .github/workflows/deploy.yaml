@@ -1,8 +1,11 @@
-name: Manually deploy Backend
+name: Manually deploy Frontend
 
 on:
   workflow_dispatch:
   workflow_call:
+    secrets:
+      HOOK_URL:
+        required: true
 
 jobs:
   deploy:
@@ -14,5 +17,7 @@ jobs:
       - name: Deploy PROD
         if: github.ref == 'refs/heads/main'
         env:
-          RENDER_BACKEND_HOOK: ${{ secrets.RENDER_BACKEND_PROD_HOOK }}
-        run: bash tools/deploy-to-render RENDER_BACKEND_HOOK
+          HOOK_URL: ${{ secrets.HOOK_URL }}
+        with:
+          HOOK_URL: ${{ secrets.HOOK_URL }}
+        run: bash tools/deploy-to-render HOOK_URL

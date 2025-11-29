@@ -32,4 +32,6 @@ jobs:
         run: ./tools/build-frontend
 
   call-deploy:
-    uses: jezyki-skryptowe-gr-1/expense-tracker/.github/workflows/frontend-deploy.yaml@main
+    uses: jezyki-skryptowe-gr-1/expense-tracker/.github/workflows/deploy.yaml@main
+    secrets:
+        HOOK_URL: ${{ secrets.RENDER_FRONTEND_PROD_HOOK }}
