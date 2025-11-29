@@ -6,9 +6,14 @@ import { Form } from '@/components/ui/form'
 import FormInput from '@/components/formInput'
 import { signupSchema, type SignupFormData } from '@/features/auth/schemas'
 import { Lock, Mail, User } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
+import { Link, useRouter } from '@tanstack/react-router'
+import { useSignupMutation } from '@/features/auth/query'
+import { toast } from 'react-toastify'
 
 const SignupForm = () => {
+    const router = useRouter()
+    const signupMutation = useSignupMutation()
+
     const form = useForm<SignupFormData>({
         resolver: zodResolver(signupSchema),
         defaultValues: {
@@ -20,7 +25,15 @@ const SignupForm = () => {
     })
 
     const onSubmit = (data: SignupFormData) => {
-        console.log('Form submitted:', data)
+        signupMutation.mutate(data, {
+            onSuccess: () => {
+                toast.success('Konto zostało utworzone! Zaloguj się.')
+                router.navigate({ to: '/' })
+            },
+            onError: (error: any) => {
+                toast.error(error.response?.data?.message || 'Błąd rejestracji')
+            }
+        })
     }
 
     return (
@@ -69,8 +82,9 @@ const SignupForm = () => {
                         <Button
                             type="submit"
                             className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all"
+                            disabled={signupMutation.isPending}
                         >
-                            Zarejestruj się
+                            {signupMutation.isPending ? 'Rejestrowanie...' : 'Zarejestruj się'}
                         </Button>
                     </form>
                 </Form>

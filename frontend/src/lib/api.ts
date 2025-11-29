@@ -1,29 +1,28 @@
-import { router } from '@/main';
 import axios from 'axios';
+import { router } from '@/main';
 
-const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL,
+const apiClient = axios.create({
+    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8000/api',
     withCredentials: true,
 });
 
-axiosInstance.interceptors.response.use(
+apiClient.interceptors.response.use(
     (response) => {
-        return response
+        return response;
     },
     async (error) => {
         if (error.response && error.response.status === 401) {
             try {
                 await axios.post(`${import.meta.env.VITE_API_URL}/auth/refresh`, {}, { withCredentials: true });
-
-                return axiosInstance(error.config);
+                return apiClient(error.config);
             } catch (refreshError) {
                 console.error('Token refresh failed', refreshError);
-                router.navigate({ to: '/' })
+                router.navigate({ to: '/' });
                 return Promise.reject(refreshError);
             }
         }
         return Promise.reject(error);
     }
-)
+);
 
-export default axiosInstance;
+export default apiClient;

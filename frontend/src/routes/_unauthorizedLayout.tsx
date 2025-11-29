@@ -1,26 +1,24 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
-// import { requireAuth } from '@/utils'
+// import { requireNoAuth } from '@/utils'
 
-export const Route = createFileRoute('/_dashboardLayout')({
+export const Route = createFileRoute('/_unauthorizedLayout')({
     // beforeLoad: async () => {
     //     try {
-    //         await requireAuth();
+    //         await requireNoAuth();
     //     } catch {
     //         throw redirect({
-    //             to: '/',
+    //             to: '/dashboard',
     //             search: {},
     //         });
     //     }
     // },
-    component: DashboardLayout,
+    component: UnauthorizedLayout,
 })
 
-function DashboardLayout() {
+function UnauthorizedLayout() {
     return (
         <div className="min-h-screen">
-            <div>
-                <Outlet />
-            </div>
+            <Outlet />
         </div>
     )
-} 
+}

@@ -8,19 +8,37 @@ import {
 import FormInput from '@/components/formInput'
 import { loginSchema, type LoginFormData } from '@/features/auth/schemas'
 import { Lock, Mail } from 'lucide-react'
-import { Link } from '@tanstack/react-router'
+import { Link, useRouter } from '@tanstack/react-router'
+import { useLoginMutation } from '@/features/auth/query'
+import { toast } from 'react-toastify'
+// import apiClient from '@/lib/api'
 
 const LoginForm = () => {
+    const router = useRouter()
+    const loginMutation = useLoginMutation()
+
     const form = useForm<LoginFormData>({
         resolver: zodResolver(loginSchema),
         defaultValues: {
-            email: '',
-            password: ''
+            email: 'test@test.com',
+            password: 'test1234'
         }
     })
 
     const onSubmit = (data: LoginFormData) => {
-        console.log('Form submitted:', data)
+        loginMutation.mutate(data, {
+            onSuccess: async () => {
+                try {
+                    // await apiClient.get('/auth/me');
+                } catch (error) {
+                    console.error('Failed to fetch user data', error);
+                }
+                router.navigate({ to: '/dashboard' })
+            },
+            onError: (error: any) => {
+                toast.error(error.response?.data?.message || 'Błąd logowania')
+            }
+        })
     }
 
     return (
@@ -54,8 +72,9 @@ const LoginForm = () => {
                         <Button
                             type="submit"
                             className="w-full h-11 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold transition-all"
+                            disabled={loginMutation.isPending}
                         >
-                            Zaloguj się
+                            {loginMutation.isPending ? 'Logowanie...' : 'Zaloguj się'}
                         </Button>
                     </form>
                 </Form>
