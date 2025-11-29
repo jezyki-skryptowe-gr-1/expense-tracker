@@ -13,6 +13,5 @@ jobs:
       - name: Deploy PROD
         if: github.ref == 'refs/heads/main'
         env:
-          RENDER_BACKEND_DEV_HOOK: ${{ secrets.RENDER_BACKEND_DEV_HOOK }}
-        run: bash tools/deploy-to-render RENDER_BACKEND_DEV_HOOK
-
+          RENDER_BACKEND_HOOK: ${{ secrets.RENDER_BACKEND_PROD_HOOK }}
+        run: bash tools/deploy-to-render RENDER_BACKEND_HOOK
