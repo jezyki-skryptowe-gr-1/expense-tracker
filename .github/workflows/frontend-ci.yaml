@@ -32,4 +32,4 @@ jobs:
         run: ./tools/build-frontend
 
   call-deploy:
-    uses: jezyki-skryptowe-gr-1/pracownia-jezykow-skryptowych-gr-1/.github/workflows/frontend-deploy.yaml@main
+    uses: jezyki-skryptowe-gr-1/expense-tracker/.github/workflows/frontend-deploy.yaml@main
