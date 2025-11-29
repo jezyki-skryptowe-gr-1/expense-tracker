@@ -19,7 +19,7 @@ def singleton(cls: Type[Any]) -> Type[Any]:
 
     # Ensure no name collision
     if hasattr(cls, _instance_attr):
-        raise AttributeError(f"{cls.__name__} already defines '{_instance_attr}'")
+        raise AttributeError(f"{cls.__name__} already defines '{_instance_attr}'") # Hello!
 
     setattr(cls, _instance_attr, None)
 

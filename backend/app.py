@@ -14,7 +14,7 @@ from services.expenses_service import ExpensesService
 def create_app() -> Flask:
     cfg = AppConfig.get_singleton()
     expenses_service = ExpensesService.get_singleton()
-    categories_service = CategoriesService.get_singleton()
+    categories_service = CategoriesService.get_singleton() #123
     users_service = UsersService.get_singleton()
 
     app = Flask(__name__)
