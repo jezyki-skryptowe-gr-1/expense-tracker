@@ -8,7 +8,7 @@ export function SummaryCards() {
     const budgetTotal = 5000.0
 
     return (
-        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-8">
             <Card className="border-border/50">
                 <CardHeader className="flex flex-row items-center justify-between pb-2">
                     <CardTitle className="text-sm font-medium text-muted-foreground">Całkowite Saldo</CardTitle>
