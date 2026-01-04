@@ -54,23 +54,6 @@ def create_app() -> Flask:
     def health():
         return jsonify({"status": "ok"}), 200
 
-    def _user_payload(username: str):
-        user = get_user_by_username(username)
-        if user is None:
-            return None
-        return {"id": user.user_id, "name": user.username, "email": user.username}
-
-    def _set_tokens(response, identity: str):
-        access_token = create_access_token(identity=identity)
-        refresh_token = create_refresh_token(identity=identity)
-        set_access_cookies(response, access_token)
-        set_refresh_cookies(response, refresh_token)
-        payload = response.get_json(silent=True) or {}
-        payload.update({"access_token": access_token, "refresh_token": refresh_token})
-        response.set_data(json.dumps(payload))
-        response.headers["Content-Type"] = "application/json"
-        return response
-
     @app.get("/api/v1/me")
     @jwt_required()
     def me():
