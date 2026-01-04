@@ -41,11 +41,11 @@ def create_app() -> Flask:
     def health():
         return jsonify({"status": "ok"}), 200
 
-    @app.post("/api/v1/me")
-    @jwt_required
+    @app.get("/api/v1/me")
+    @jwt_required()
     def me():
         lgn = get_jwt_identity()
-        return lgn, 200
+        return jsonify({"login": lgn}), 200
 
     @app.post("/api/v1/register")
     def add_user():
@@ -109,7 +109,7 @@ def create_app() -> Flask:
 
     @app.delete("/api/v1/delete_expense")
     @jwt_required()
-    def register():
+    def delete_expense():
         data = request.get_json()
         expense_id = data["expense_id"]
         expenses_service.delete_expense(expense_id)
