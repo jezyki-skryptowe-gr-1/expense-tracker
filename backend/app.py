@@ -38,10 +38,10 @@ def create_app() -> Flask:
 
     # CORS
     if cfg.cors_allow_all:
-        CORS(app, supports_credentials=True)
+        CORS(app)
     else:
         origins = [o.strip() for o in cfg.cors_origins.split(",") if o.strip()]
-        CORS(app, resources={r"/*": {"origins": origins}}, supports_credentials=True)
+        CORS(app, resources={r"/*": {"origins": origins}})
 
     @app.get("/health")
     def health():
