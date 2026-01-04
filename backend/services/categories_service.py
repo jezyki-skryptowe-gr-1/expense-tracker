@@ -24,7 +24,9 @@ class CategoriesService:
         user = self._current_user()
         if user is None:
             return
-        categories_repository.save_category(Category(category_id, user.user_id, name))
+        user_categories = categories_repository.find_by_user(user.user_id)
+        if any(c.category_id == category_id for c in user_categories):
+            categories_repository.save_category(Category(category_id, user.user_id, name))
 
     def delete_category(self, category_id):
         user = self._current_user()
