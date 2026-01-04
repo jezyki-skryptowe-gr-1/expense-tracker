@@ -17,11 +17,7 @@ from flask_jwt_extended import (
     create_refresh_token,
     get_jwt_identity,
     jwt_required,
-    set_access_cookies,
-    set_refresh_cookies,
-    unset_jwt_cookies,
 )
-from repository.users_repository import get_user_by_username
 
 
 def create_app() -> Flask:
@@ -35,9 +31,7 @@ def create_app() -> Flask:
     # JWT
     app.config['SECRET_KEY'] = cfg.secret_key
     app.config["JWT_SECRET_KEY"] = cfg.jwt_secret_key
-    app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
-    app.config["JWT_COOKIE_SECURE"] = False
-    app.config["JWT_COOKIE_CSRF_PROTECT"] = False
+    app.config['JWT_TOKEN_LOCATION'] = ['headers']
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
 
