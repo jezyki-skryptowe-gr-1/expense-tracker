@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import os
 from datetime import timedelta
 
@@ -10,7 +11,17 @@ from services.categories_service import CategoriesService
 from services.users_service import UsersService
 from config import AppConfig
 from services.expenses_service import ExpensesService
-from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    create_refresh_token,
+    get_jwt_identity,
+    jwt_required,
+    set_access_cookies,
+    set_refresh_cookies,
+    unset_jwt_cookies,
+)
+from repository.users_repository import get_user_by_username
 
 
 def create_app() -> Flask:
@@ -24,7 +35,9 @@ def create_app() -> Flask:
     # JWT
     app.config['SECRET_KEY'] = 'your_strong_secret_key'
     app.config["JWT_SECRET_KEY"] = 'your_jwt_secret_key'
-    app.config['JWT_TOKEN_LOCATION'] = ['headers']
+    app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
+    app.config["JWT_COOKIE_SECURE"] = False
+    app.config["JWT_COOKIE_CSRF_PROTECT"] = False
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
 
@@ -32,14 +45,87 @@ def create_app() -> Flask:
 
     # CORS
     if cfg.cors_allow_all:
-        CORS(app)
+        CORS(app, supports_credentials=True)
     else:
         origins = [o.strip() for o in cfg.cors_origins.split(",") if o.strip()]
-        CORS(app, resources={r"/*": {"origins": origins}})
+        CORS(app, resources={r"/*": {"origins": origins}}, supports_credentials=True)
 
     @app.get("/health")
     def health():
         return jsonify({"status": "ok"}), 200
+
+    def _user_payload(username: str):
+        user = get_user_by_username(username)
+        if user is None:
+            return None
+        return {"id": user.user_id, "name": user.username, "email": user.username}
+
+    def _set_tokens(response, identity: str):
+        access_token = create_access_token(identity=identity)
+        refresh_token = create_refresh_token(identity=identity)
+        set_access_cookies(response, access_token)
+        set_refresh_cookies(response, refresh_token)
+        payload = response.get_json(silent=True) or {}
+        payload.update({"access_token": access_token, "refresh_token": refresh_token})
+        response.set_data(json.dumps(payload))
+        response.headers["Content-Type"] = "application/json"
+        return response
+
+    @app.post("/api/auth/signup")
+    def auth_signup():
+        data = request.get_json(silent=True) or {}
+        email = data.get("email")
+        password = data.get("password")
+        if not email or not password:
+            return jsonify({"message": "Email and password are required"}), 400
+
+        users_service.register_user(email, password)
+        user_payload = _user_payload(email)
+        if user_payload is None:
+            return jsonify({"message": "Failed to create user"}), 500
+
+        response = jsonify({"user": user_payload})
+        _set_tokens(response, email)
+        return response, 201
+
+    @app.post("/api/auth/login")
+    def auth_login():
+        data = request.get_json(silent=True) or {}
+        email = data.get("email")
+        password = data.get("password")
+        if not email or not password:
+            return jsonify({"message": "Email and password are required"}), 400
+
+        if not users_service.check_password(email, password):
+            return jsonify({"message": "Invalid credentials"}), 401
+
+        user_payload = _user_payload(email)
+        response = jsonify({"user": user_payload})
+        _set_tokens(response, email)
+        return response, 200
+
+    @app.get("/api/auth/me")
+    @jwt_required()
+    def auth_me():
+        identity = get_jwt_identity()
+        user_payload = _user_payload(identity)
+        if user_payload is None:
+            return jsonify({"message": "User not found"}), 404
+        return jsonify(user_payload), 200
+
+    @app.post("/api/auth/logout")
+    def auth_logout():
+        response = jsonify({"status": "logged_out"})
+        unset_jwt_cookies(response)
+        return response, 200
+
+    @app.post("/api/auth/refresh")
+    @jwt_required(refresh=True)
+    def auth_refresh():
+        identity = get_jwt_identity()
+        response = jsonify({"status": "refreshed"})
+        _set_tokens(response, identity)
+        return response, 200
 
     @app.get("/api/v1/me")
     @jwt_required()

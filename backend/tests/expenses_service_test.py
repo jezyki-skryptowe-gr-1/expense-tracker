@@ -47,3 +47,35 @@ def test_delete_expense_blocks_other_user(monkeypatch):
 
     # Still present because owner differs
     assert transactions_repository.get_transaction(expense_id) is not None
+
+
+def test_update_expense_updates_owned(monkeypatch):
+    _set_user("u1", 1)
+    _set_category(1, 1)
+    monkeypatch.setattr("services.expenses_service.get_jwt_identity", lambda: "u1")
+    service = ExpensesService.get_singleton()
+    expense_id = service.add_expense(1, 50, "old")
+
+    service.update_expense(expense_id, 1, 75, "updated")
+
+    txn = transactions_repository.get_transaction(expense_id)
+    assert txn is not None
+    assert float(txn.amount) == 75.0
+    assert txn.notes == "updated"
+
+
+def test_update_expense_blocks_other_user(monkeypatch):
+    _set_user("u1", 1)
+    _set_user("u2", 2)
+    _set_category(1, 1)
+    monkeypatch.setattr("services.expenses_service.get_jwt_identity", lambda: "u1")
+    service = ExpensesService.get_singleton()
+    expense_id = service.add_expense(1, 25, "original")
+
+    monkeypatch.setattr("services.expenses_service.get_jwt_identity", lambda: "u2")
+    service.update_expense(expense_id, 1, 999, "hijack")
+
+    txn = transactions_repository.get_transaction(expense_id)
+    assert txn is not None
+    assert float(txn.amount) == 25.0
+    assert txn.notes == "original"

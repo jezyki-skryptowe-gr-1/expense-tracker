@@ -38,3 +38,24 @@ def test_update_user_replaces_budgets(monkeypatch):
     assert len(user_budgets) == 1
     assert user_budgets[0].category_id == 1
     assert float(user_budgets[0].limit_amount) == 200.0
+
+
+def test_update_user_ignores_invalid_entries(monkeypatch):
+    _set_user("u1", 1)
+    _set_category(1, 1)
+
+    monkeypatch.setattr("services.users_service.get_jwt_identity", lambda: "u1")
+    service = UsersService.get_singleton()
+
+    service.update_user([{"category_id": 1}, "not-a-dict", {"limit_amount": 10}])
+
+    assert budgets_repository.find_by_user(1) == []
+
+
+def test_check_password(monkeypatch):
+    users_repository.create_user("user1", "secret")
+    service = UsersService.get_singleton()
+
+    assert service.check_password("user1", "secret") is True
+    assert service.check_password("user1", "wrong") is False
+    assert service.check_password("missing", "any") is False

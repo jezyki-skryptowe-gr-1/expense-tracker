@@ -42,3 +42,19 @@ def test_delete_category_blocks_other_user(monkeypatch):
 
     # Category remains because user 2 is not the owner
     assert len(categories_repository.find_by_user(1)) == 1
+
+
+def test_get_categories_returns_only_current_user(monkeypatch):
+    _set_user("owner", 1)
+    _set_user("other", 2)
+    _set_category(1, 1, "owner-cat")
+    _set_category(2, 2, "other-cat")
+
+    monkeypatch.setattr("services.categories_service.get_jwt_identity", lambda: "owner")
+    service = CategoriesService.get_singleton()
+
+    categories = service.get_categories()
+
+    assert len(categories) == 1
+    assert categories[0]["name"] == "owner-cat"
+    assert categories[0]["user_id"] == 1
