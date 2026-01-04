@@ -33,8 +33,8 @@ def create_app() -> Flask:
     app = Flask(__name__)
 
     # JWT
-    app.config['SECRET_KEY'] = 'your_strong_secret_key'
-    app.config["JWT_SECRET_KEY"] = 'your_jwt_secret_key'
+    app.config['SECRET_KEY'] = cfg.secret_key
+    app.config["JWT_SECRET_KEY"] = cfg.jwt_secret_key
     app.config['JWT_TOKEN_LOCATION'] = ['headers', 'cookies']
     app.config["JWT_COOKIE_SECURE"] = False
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False
@@ -70,62 +70,6 @@ def create_app() -> Flask:
         response.set_data(json.dumps(payload))
         response.headers["Content-Type"] = "application/json"
         return response
-
-    @app.post("/api/auth/signup")
-    def auth_signup():
-        data = request.get_json(silent=True) or {}
-        email = data.get("email")
-        password = data.get("password")
-        if not email or not password:
-            return jsonify({"message": "Email and password are required"}), 400
-
-        users_service.register_user(email, password)
-        user_payload = _user_payload(email)
-        if user_payload is None:
-            return jsonify({"message": "Failed to create user"}), 500
-
-        response = jsonify({"user": user_payload})
-        _set_tokens(response, email)
-        return response, 201
-
-    @app.post("/api/auth/login")
-    def auth_login():
-        data = request.get_json(silent=True) or {}
-        email = data.get("email")
-        password = data.get("password")
-        if not email or not password:
-            return jsonify({"message": "Email and password are required"}), 400
-
-        if not users_service.check_password(email, password):
-            return jsonify({"message": "Invalid credentials"}), 401
-
-        user_payload = _user_payload(email)
-        response = jsonify({"user": user_payload})
-        _set_tokens(response, email)
-        return response, 200
-
-    @app.get("/api/auth/me")
-    @jwt_required()
-    def auth_me():
-        identity = get_jwt_identity()
-        user_payload = _user_payload(identity)
-        if user_payload is None:
-            return jsonify({"message": "User not found"}), 404
-        return jsonify(user_payload), 200
-
-    @app.post("/api/auth/logout")
-    def auth_logout():
-        response = jsonify({"status": "logged_out"})
-        unset_jwt_cookies(response)
-        return response, 200
-
-    @app.post("/api/auth/refresh")
-    @jwt_required(refresh=True)
-    def auth_refresh():
-        identity = get_jwt_identity()
-        response = jsonify({"status": "refreshed"})
-        _set_tokens(response, identity)
-        return response, 200
 
     @app.get("/api/v1/me")
     @jwt_required()
