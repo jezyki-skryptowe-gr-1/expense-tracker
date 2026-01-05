@@ -9,7 +9,7 @@ export const authApi = {
     },
     signup: async (data: SignupFormData) => {
         const response = await apiClient.post('/v1/register', {
-            login: data.username, // Dopasowanie do backendu oczekującego "login"
+            login: data.name,
             password: data.password
         });
         return response.data;

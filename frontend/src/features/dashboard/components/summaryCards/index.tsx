@@ -1,11 +1,35 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Wallet, TrendingUp, TrendingDown, DollarSign } from "lucide-react"
+import { useSummaryQuery } from "../../query"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export function SummaryCards() {
-    const totalBalance = 15420.5
-    const monthlyExpenses = 3250.0
-    const budgetRemaining = 1750.0
-    const budgetTotal = 5000.0
+    const { data: summary, isLoading } = useSummaryQuery()
+
+    if (isLoading) {
+        return (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-8">
+                {[1, 2, 3].map((i) => (
+                    <Card key={i} className="border-border/50">
+                        <CardHeader className="pb-2">
+                            <Skeleton className="h-4 w-24" />
+                        </CardHeader>
+                        <CardContent>
+                            <Skeleton className="h-8 w-32" />
+                            <Skeleton className="h-3 w-40 mt-2" />
+                        </CardContent>
+                    </Card>
+                ))}
+            </div>
+        )
+    }
+
+    const { 
+        totalBalance = 0, 
+        monthlyExpenses = 0, 
+        budgetRemaining = 0, 
+        percentageUsed = 0 
+    } = summary || {}
 
     return (
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 mt-8">
@@ -31,7 +55,7 @@ export function SummaryCards() {
                 <CardContent>
                     <div className="text-2xl font-bold text-destructive">-{monthlyExpenses.toFixed(2)} PLN</div>
                     <p className="text-xs text-muted-foreground mt-1">
-                        {((monthlyExpenses / budgetTotal) * 100).toFixed(0)}% budżetu wykorzystane
+                        {percentageUsed.toFixed(0)}% budżetu wykorzystane
                     </p>
                 </CardContent>
             </Card>

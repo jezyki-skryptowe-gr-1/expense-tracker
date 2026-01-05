@@ -73,7 +73,7 @@ export function ChartsSection() {
                                         color: "hsl(var(--foreground))",
                                     }}
                                 />
-                                <Bar dataKey="wydatki" fill="#3b82f6" radius={[4, 4, 0, 0]} />
+                                <Bar dataKey="expenses" fill="#3b82f6" radius={[4, 4, 0, 0]} />
                             </BarChart>
                         </ResponsiveContainer>
                     )}

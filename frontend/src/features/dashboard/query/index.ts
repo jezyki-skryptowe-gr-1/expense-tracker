@@ -1,6 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { dashboardApi } from '../api';
-import { useUserQuery } from '@/features/auth/query';
+
 import type {
     AddExpenseRequest,
     UpdateCategoryRequest,
@@ -8,12 +8,16 @@ import type {
 } from '../types';
 
 export const useChartDataQuery = () => {
-    const { data: user } = useUserQuery();
-
     return useQuery({
-        queryKey: ['chartData', user?.id],
+        queryKey: ['chartData'],
         queryFn: () => dashboardApi.getChartData(),
-        enabled: !!user,
+    });
+};
+
+export const useSummaryQuery = () => {
+    return useQuery({
+        queryKey: ['summary'],
+        queryFn: () => dashboardApi.getSummary(),
     });
 };
 
@@ -38,6 +42,7 @@ export const useUpdateUserMutation = () => {
         mutationFn: (budget: number) => dashboardApi.updateUser(budget),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['user'] });
+            queryClient.invalidateQueries({ queryKey: ['summary'] });
         },
     });
 };
@@ -50,6 +55,7 @@ export const useAddExpenseMutation = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['expenses'] });
             queryClient.invalidateQueries({ queryKey: ['chartData'] });
+            queryClient.invalidateQueries({ queryKey: ['summary'] });
         },
     });
 };
@@ -62,6 +68,7 @@ export const useUpdateExpenseMutation = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['expenses'] });
             queryClient.invalidateQueries({ queryKey: ['chartData'] });
+            queryClient.invalidateQueries({ queryKey: ['summary'] });
         },
     });
 };
@@ -74,6 +81,7 @@ export const useDeleteExpenseMutation = () => {
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['expenses'] });
             queryClient.invalidateQueries({ queryKey: ['chartData'] });
+            queryClient.invalidateQueries({ queryKey: ['summary'] });
         },
     });
 };

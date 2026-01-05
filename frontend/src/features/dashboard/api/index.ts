@@ -2,15 +2,20 @@ import apiClient from '@/lib/api';
 import type {
     AddCategoryRequest,
     AddExpenseRequest,
-    Base, Categories,
-    Expenses, UpdateCategoryRequest,
+    Base, Categories, ChartData,
+    Expenses, Summary, UpdateCategoryRequest,
     UpdateExpenseRequest,
     UpdateUserRequest
 } from "@/features/dashboard/types";
 
 export const dashboardApi = {
-    getChartData: async (): Promise<any> => {
-        const response = await apiClient.get(`/charts`);
+    getSummary: async (): Promise<Summary> => {
+        const response = await apiClient.get<Summary>(`/api/v1/summary`);
+        return response.data;
+    },
+
+    getChartData: async (): Promise<ChartData> => {
+        const response = await apiClient.get<ChartData>(`/api/v1/charts`);
         return response.data;
     },
 

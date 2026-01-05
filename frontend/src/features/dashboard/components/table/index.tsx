@@ -7,10 +7,14 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, ChevronLeft, ChevronRight, X } from "lucide-react"
-import { allTransactions } from "../../fakeData"
+import {Search, ChevronLeft, ChevronRight, X, DollarSign} from "lucide-react"
+import { useCategoriesQuery, useExpensesQuery } from "../../query"
+import { Skeleton } from "@/components/ui/skeleton"
 
 export function TransactionsTable() {
+    const { data: expenses, isLoading: expensesLoading } = useExpensesQuery()
+    const { data: categoriesData, isLoading: categoriesLoading } = useCategoriesQuery()
+    
     const [searchQuery, setSearchQuery] = useState("")
     const [selectedCategory, setSelectedCategory] = useState("all")
 
@@ -20,8 +24,11 @@ export function TransactionsTable() {
     const [currentPage, setCurrentPage] = useState(1)
     const itemsPerPage = 5
 
-    const filteredTransactions = allTransactions.filter((transaction) => {
-        const matchesSearch = transaction.description.toLowerCase().includes(searchQuery.toLowerCase())
+    const transactions = Array.isArray(expenses) ? expenses : []
+    const categories = categoriesData?.categories || []
+
+    const filteredTransactions = transactions.filter((transaction) => {
+        const matchesSearch = (transaction.description || "").toLowerCase().includes(searchQuery.toLowerCase())
 
         const matchesCategory = selectedCategory === "all" || transaction.category === selectedCategory
 
@@ -52,6 +59,24 @@ export function TransactionsTable() {
     }
 
     const hasActiveFilters = searchQuery || selectedCategory !== "all" || amountFrom || amountTo
+
+    if (expensesLoading || categoriesLoading) {
+        return (
+            <Card className="border-border/50">
+                <CardHeader>
+                    <Skeleton className="h-6 w-48" />
+                    <Skeleton className="h-4 w-64 mt-2" />
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                            <Skeleton key={i} className="h-12 w-full" />
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+        )
+    }
 
     return (
         <Card className="border-border/50">
@@ -90,10 +115,11 @@ export function TransactionsTable() {
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">Wszystkie</SelectItem>
-                                    <SelectItem value="Jedzenie">Jedzenie</SelectItem>
-                                    <SelectItem value="Transport">Transport</SelectItem>
-                                    <SelectItem value="Dom">Dom</SelectItem>
-                                    <SelectItem value="Zakupy">Zakupy</SelectItem>
+                                    {categories.map((category: any) => (
+                                        <SelectItem key={category.category_id} value={category.name}>
+                                            {category.name}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
@@ -143,22 +169,21 @@ export function TransactionsTable() {
                             </TableRow>
                         ) : (
                             paginatedTransactions.map((transaction) => {
-                                const Icon = transaction.icon
                                 return (
-                                    <TableRow key={transaction.id}>
+                                    <TableRow key={transaction.expense_id}>
                                         <TableCell>
                                             <div className="p-2 rounded-lg w-fit bg-card">
-                                                <Icon className="size-4 text-muted-foreground" />
+                                                <DollarSign className="size-4 text-muted-foreground" />
                                             </div>
                                         </TableCell>
-                                        <TableCell className="font-medium">{transaction.description}</TableCell>
+                                        <TableCell className="font-medium">{transaction.description || 'Bez opisu'}</TableCell>
                                         <TableCell className="hidden sm:table-cell">
                                             <Badge variant="outline" className="font-normal">
                                                 {transaction.category}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="hidden md:table-cell text-muted-foreground">
-                                            {new Date(transaction.date).toLocaleDateString("pl-PL")}
+                                            {transaction.date ? new Date(transaction.date).toLocaleDateString("pl-PL") : 'Brak daty'}
                                         </TableCell>
                                         <TableCell className="text-right font-semibold whitespace-nowrap">
                                             {transaction.amount.toFixed(2)} PLN

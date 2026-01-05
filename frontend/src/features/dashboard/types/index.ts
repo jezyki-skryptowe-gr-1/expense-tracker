@@ -1,38 +1,45 @@
-import { z } from 'zod';
+export interface Base {
+    status: string;
+}
 
-export const BaseSchema = z.object({
-    status: z.string(),
-});
+export interface Category {
+    category_id: number;
+    name: string;
+    color?: string;
+}
 
-export type Base = z.infer<typeof BaseSchema>;
+export interface Categories {
+    categories: Category[];
+}
 
-export const CategorySchema = z.object({
-    category_id: z.number(),
-    name: z.string(),
-    color: z.string().optional(),
-});
+export interface Expense {
+    expense_id: number;
+    category: string;
+    amount: number;
+    date?: string;
+    description?: string;
+}
 
-export type Category = z.infer<typeof CategorySchema>;
+export type Expenses = Expense[];
 
-export const CategoriesSchema = z.object({
-    categories: z.array(CategorySchema),
-});
+export interface Summary {
+    totalBalance: number;
+    monthlyExpenses: number;
+    budgetRemaining: number;
+    percentageUsed: number;
+}
 
-export type Categories = z.infer<typeof CategoriesSchema>;
-
-export const ExpenseSchema = z.object({
-    expense_id: z.number(),
-    category: z.string(),
-    amount: z.number(),
-    date: z.string().optional(),
-    description: z.string().optional(),
-});
-
-export type Expense = z.infer<typeof ExpenseSchema>;
-
-export const ExpensesSchema = z.array(ExpenseSchema);
-
-export type Expenses = z.infer<typeof ExpensesSchema>;
+export interface ChartData {
+    barChartData: {
+        month: string;
+        expenses: number;
+    }[];
+    categoryData: {
+        name: string;
+        value: number;
+        color: string;
+    }[];
+}
 
 export interface UpdateUserRequest {
     budget: number;
