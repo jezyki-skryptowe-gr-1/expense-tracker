@@ -19,11 +19,11 @@ export const barChartData = [
 ]
 
 export const categoryData = [
-    { name: "Jedzenie", value: 2400, color: "hsl(var(--chart-1))" },
-    { name: "Transport", value: 1398, color: "hsl(var(--chart-2))" },
-    { name: "Dom", value: 9800, color: "hsl(var(--chart-3))" },
-    { name: "Rozrywka", value: 3908, color: "hsl(var(--chart-4))" },
-    { name: "Inne", value: 4800, color: "hsl(var(--chart-5))" },
+    { name: "Jedzenie", value: 2400, color: "#3b82f6" },
+    { name: "Transport", value: 1398, color: "#ef4444" },
+    { name: "Dom", value: 9800, color: "#22c55e" },
+    { name: "Rozrywka", value: 3908, color: "#f59e0b" },
+    { name: "Inne", value: 4800, color: "#a855f7" },
 ]
 
 export const allTransactions: Transaction[] = [
