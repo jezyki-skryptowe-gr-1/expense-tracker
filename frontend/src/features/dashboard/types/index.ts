@@ -20,7 +20,14 @@ export interface Expense {
     description?: string;
 }
 
-export type Expenses = Expense[];
+export interface PaginatedExpenses {
+    expenses: Expense[];
+    totalCount: number;
+    totalPages: number;
+    currentPage: number;
+}
+
+export type Expenses = PaginatedExpenses;
 
 export interface Summary {
     totalBalance: number;

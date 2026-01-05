@@ -39,8 +39,8 @@ export const dashboardApi = {
         return response.data;
     },
 
-    getExpenses: async (): Promise<Expenses> => {
-        const response = await apiClient.get<Expenses>('/api/v1/expenses');
+    getExpenses: async (params?: { page?: number; limit?: number; search?: string; category?: string }): Promise<Expenses> => {
+        const response = await apiClient.get<Expenses>('/api/v1/expenses', { params });
         return response.data;
     },
 

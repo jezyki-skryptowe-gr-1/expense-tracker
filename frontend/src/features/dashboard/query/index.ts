@@ -21,10 +21,15 @@ export const useSummaryQuery = () => {
     });
 };
 
-export const useExpensesQuery = () => {
+export const useExpensesQuery = (params: { 
+    page: number; 
+    limit: number; 
+    search?: string; 
+    category?: string 
+}) => {
     return useQuery({
-        queryKey: ['expenses'],
-        queryFn: () => dashboardApi.getExpenses(),
+        queryKey: ['expenses', params],
+        queryFn: () => dashboardApi.getExpenses(params),
     });
 };
 
