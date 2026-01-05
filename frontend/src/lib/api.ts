@@ -11,12 +11,13 @@ apiClient.interceptors.response.use(
         return response;
     },
     async (error) => {
-        if (error.response && error.response.status === 401) {
+        const originalRequest = error.config;
+        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+            originalRequest._retry = true;
             try {
-                await axios.post(`${import.meta.env.VITE_API_URL}/auth/refresh`, {}, { withCredentials: true });
-                return apiClient(error.config);
+                await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/refresh_token`, {}, { withCredentials: true });
+                return apiClient(originalRequest);
             } catch (refreshError) {
-                console.error('Token refresh failed', refreshError);
                 router.navigate({ to: '/' });
                 return Promise.reject(refreshError);
             }

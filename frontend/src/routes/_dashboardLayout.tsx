@@ -1,14 +1,24 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
-// import { requireAuth } from '@/utils'
+// import { authApi } from '@/features/auth/api'
 
 export const Route = createFileRoute('/_dashboardLayout')({
-    // beforeLoad: async () => {
+    // beforeLoad: async ({ context }) => {
+    //     const isMaybeLoggedIn = localStorage.getItem('auth_hint') === 'true';
+    //
+    //     if (!isMaybeLoggedIn) {
+    //         throw redirect({
+    //             to: '/',
+    //         });
+    //     }
+    //
     //     try {
-    //         await requireAuth();
+    //         await context.queryClient.ensureQueryData({
+    //             queryKey: ['user'],
+    //             queryFn: authApi.getMe,
+    //         });
     //     } catch {
     //         throw redirect({
     //             to: '/',
-    //             search: {},
     //         });
     //     }
     // },

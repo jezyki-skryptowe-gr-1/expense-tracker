@@ -3,19 +3,30 @@ import type { LoginFormData, SignupFormData } from '../schemas';
 
 export const authApi = {
     login: async (data: LoginFormData) => {
-        const response = await apiClient.post('/auth/login', data);
+        const response = await apiClient.post('/v1/login', data);
+        localStorage.setItem('auth_hint', 'true');
         return response.data;
     },
     signup: async (data: SignupFormData) => {
-        const response = await apiClient.post('/auth/signup', data);
+        const response = await apiClient.post('/v1/register', {
+            login: data.name,
+            password: data.password
+        });
         return response.data;
     },
     getMe: async () => {
-        const response = await apiClient.get('/auth/me');
-        return response.data;
+        try {
+            const response = await apiClient.post('/v1/me');
+            localStorage.setItem('auth_hint', 'true');
+            return response.data;
+        } catch (error) {
+            localStorage.removeItem('auth_hint');
+            throw error;
+        }
     },
     logout: async () => {
-        const response = await apiClient.post('/auth/logout');
+        const response = await apiClient.post('/v1/logout');
+        localStorage.removeItem('auth_hint');
         return response.data;
     },
 };

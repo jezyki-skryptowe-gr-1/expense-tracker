@@ -1,15 +1,27 @@
 import { Outlet, createFileRoute } from '@tanstack/react-router'
-// import { requireNoAuth } from '@/utils'
+// import { authApi } from '@/features/auth/api'
 
 export const Route = createFileRoute('/_unauthorizedLayout')({
-    // beforeLoad: async () => {
+    // beforeLoad: async ({ context }) => {
+    //     const isMaybeLoggedIn = localStorage.getItem('auth_hint') === 'true';
+    //
+    //     if (!isMaybeLoggedIn) {
+    //         return;
+    //     }
+    //
     //     try {
-    //         await requireNoAuth();
-    //     } catch {
+    //         await context.queryClient.ensureQueryData({
+    //             queryKey: ['user'],
+    //             queryFn: authApi.getMe,
+    //         });
     //         throw redirect({
     //             to: '/dashboard',
-    //             search: {},
     //         });
+    //     } catch (e) {
+    //         if (e instanceof Error && 'status' in e && e.status === 307) {
+    //             throw e;
+    //         }
+    //         // Not logged in or session expired, stay here
     //     }
     // },
     component: UnauthorizedLayout,

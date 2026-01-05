@@ -1,57 +1,99 @@
 "use client"
 
-import { useState } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Input } from "@/components/ui/input"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { Search, ChevronLeft, ChevronRight, X } from "lucide-react"
-import { allTransactions } from "../../fakeData"
+import {Search, ChevronLeft, ChevronRight, X, DollarSign} from "lucide-react"
+import { useNavigate, useSearch } from "@tanstack/react-router"
+import { useCategoriesQuery, useExpensesQuery } from "../../query"
+import { Skeleton } from "@/components/ui/skeleton"
+import { useQueryClient } from "@tanstack/react-query"
+import { useEffect } from "react"
+import { dashboardApi } from "../../api"
 
 export function TransactionsTable() {
-    const [searchQuery, setSearchQuery] = useState("")
-    const [selectedCategory, setSelectedCategory] = useState("all")
+    const search = useSearch({ from: '/_dashboardLayout/dashboard' })
+    const navigate = useNavigate()
+    const queryClient = useQueryClient()
 
-    const [amountFrom, setAmountFrom] = useState("")
-    const [amountTo, setAmountTo] = useState("")
+    const currentPage = search.page || 1
+    const searchQuery = search.search || ""
+    const selectedCategory = search.category || "all"
+    const itemsPerPage = 1
 
-    const [currentPage, setCurrentPage] = useState(1)
-    const itemsPerPage = 5
-
-    const filteredTransactions = allTransactions.filter((transaction) => {
-        const matchesSearch = transaction.description.toLowerCase().includes(searchQuery.toLowerCase())
-
-        const matchesCategory = selectedCategory === "all" || transaction.category === selectedCategory
-
-        const amount = Math.abs(transaction.amount)
-        const from = amountFrom ? parseFloat(amountFrom) : 0
-        const to = amountTo ? parseFloat(amountTo) : Infinity
-        const matchesAmount = amount >= from && amount <= to
-
-        return matchesSearch && matchesCategory && matchesAmount
+    const { data: expensesData, isLoading: expensesLoading } = useExpensesQuery({
+        page: currentPage,
+        limit: itemsPerPage,
+        search: searchQuery,
+        category: selectedCategory === "all" ? undefined : selectedCategory
     })
+    
+    const { data: categoriesData, isLoading: categoriesLoading } = useCategoriesQuery()
+    
+    useEffect(() => {
+        if (expensesData && currentPage < expensesData.totalPages) {
+            const nextPageParams = {
+                page: currentPage + 1,
+                limit: itemsPerPage,
+                search: searchQuery,
+                category: selectedCategory === "all" ? undefined : selectedCategory
+            }
+            queryClient.prefetchQuery({
+                queryKey: ['expenses', nextPageParams],
+                queryFn: () => dashboardApi.getExpenses(nextPageParams),
+            })
+        }
+    }, [expensesData, currentPage, searchQuery, selectedCategory, queryClient])
 
-    const totalPages = Math.ceil(filteredTransactions.length / itemsPerPage)
-    const startIndex = (currentPage - 1) * itemsPerPage
-    const endIndex = startIndex + itemsPerPage
-    const paginatedTransactions = filteredTransactions.slice(startIndex, endIndex)
+    const transactions = expensesData?.expenses || []
+    const categories = categoriesData?.categories || []
+    const totalPages = expensesData?.totalPages || 1
 
-    const handleFilterChange = (setter: (val: string) => void, value: string) => {
-        setter(value)
-        setCurrentPage(1)
+    const handleFilterChange = (key: string, value: string) => {
+        navigate({
+            to: '/dashboard',
+            search: (prev: any) => ({
+                ...prev,
+                [key]: value || undefined,
+                page: 1
+            })
+        })
     }
 
     const clearFilters = () => {
-        setSearchQuery("")
-        setSelectedCategory("all")
-        setAmountFrom("")
-        setAmountTo("")
-        setCurrentPage(1)
+        navigate({
+            to: '/dashboard',
+            search: (prev: any) => ({
+                ...prev,
+                search: undefined,
+                category: undefined,
+                page: 1
+            })
+        })
     }
 
-    const hasActiveFilters = searchQuery || selectedCategory !== "all" || amountFrom || amountTo
+    const hasActiveFilters = !!searchQuery || selectedCategory !== "all"
+
+    if (expensesLoading || categoriesLoading) {
+        return (
+            <Card className="border-border/50">
+                <CardHeader>
+                    <Skeleton className="h-6 w-48" />
+                    <Skeleton className="h-4 w-64 mt-2" />
+                </CardHeader>
+                <CardContent>
+                    <div className="space-y-2">
+                        {[1, 2, 3, 4, 5].map((i) => (
+                            <Skeleton key={i} className="h-12 w-full" />
+                        ))}
+                    </div>
+                </CardContent>
+            </Card>
+        )
+    }
 
     return (
         <Card className="border-border/50">
@@ -77,44 +119,43 @@ export function TransactionsTable() {
                                 <Input
                                     placeholder="Szukaj transakcji..."
                                     value={searchQuery}
-                                    onChange={(e) => handleFilterChange(setSearchQuery, e.target.value)}
+                                    onChange={(e) => handleFilterChange("search", e.target.value)}
                                     className="pl-9"
                                 />
                             </div>
                             <Select
                                 value={selectedCategory}
-                                onValueChange={(val) => handleFilterChange(setSelectedCategory, val)}
+                                onValueChange={(val) => handleFilterChange("category", val)}
                             >
                                 <SelectTrigger className="w-full sm:w-[180px]">
                                     <SelectValue placeholder="Kategoria" />
                                 </SelectTrigger>
                                 <SelectContent>
                                     <SelectItem value="all">Wszystkie</SelectItem>
-                                    <SelectItem value="Jedzenie">Jedzenie</SelectItem>
-                                    <SelectItem value="Transport">Transport</SelectItem>
-                                    <SelectItem value="Dom">Dom</SelectItem>
-                                    <SelectItem value="Zakupy">Zakupy</SelectItem>
+                                    {categories.map((category: any) => (
+                                        <SelectItem key={category.category_id} value={category.name}>
+                                            {category.name}
+                                        </SelectItem>
+                                    ))}
                                 </SelectContent>
                             </Select>
                         </div>
 
-                        <div className="flex flex-row gap-3 items-center">
+                        <div className="flex flex-row gap-3 items-center opacity-50 cursor-not-allowed">
                             <Input
                                 type="number"
                                 placeholder="Kwota od (PLN)"
-                                value={amountFrom}
-                                onChange={(e) => handleFilterChange(setAmountFrom, e.target.value)}
+                                value=""
+                                disabled
                                 className="flex-1"
-                                min="0"
                             />
                             <span className="text-muted-foreground">-</span>
                             <Input
                                 type="number"
                                 placeholder="Kwota do (PLN)"
-                                value={amountTo}
-                                onChange={(e) => handleFilterChange(setAmountTo, e.target.value)}
+                                value=""
+                                disabled
                                 className="flex-1"
-                                min="0"
                             />
                         </div>
                     </div>
@@ -132,7 +173,7 @@ export function TransactionsTable() {
                         </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {paginatedTransactions.length === 0 ? (
+                        {transactions.length === 0 ? (
                             <TableRow>
                                 <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
                                     <div className="flex flex-col items-center gap-1">
@@ -142,23 +183,22 @@ export function TransactionsTable() {
                                 </TableCell>
                             </TableRow>
                         ) : (
-                            paginatedTransactions.map((transaction) => {
-                                const Icon = transaction.icon
+                            transactions.map((transaction) => {
                                 return (
-                                    <TableRow key={transaction.id}>
+                                    <TableRow key={transaction.expense_id}>
                                         <TableCell>
                                             <div className="p-2 rounded-lg w-fit bg-card">
-                                                <Icon className="size-4 text-muted-foreground" />
+                                                <DollarSign className="size-4 text-muted-foreground" />
                                             </div>
                                         </TableCell>
-                                        <TableCell className="font-medium">{transaction.description}</TableCell>
+                                        <TableCell className="font-medium">{transaction.description || 'Bez opisu'}</TableCell>
                                         <TableCell className="hidden sm:table-cell">
                                             <Badge variant="outline" className="font-normal">
                                                 {transaction.category}
                                             </Badge>
                                         </TableCell>
                                         <TableCell className="hidden md:table-cell text-muted-foreground">
-                                            {new Date(transaction.date).toLocaleDateString("pl-PL")}
+                                            {transaction.date ? new Date(transaction.date).toLocaleDateString("pl-PL") : 'Brak daty'}
                                         </TableCell>
                                         <TableCell className="text-right font-semibold whitespace-nowrap">
                                             {transaction.amount.toFixed(2)} PLN
@@ -170,17 +210,17 @@ export function TransactionsTable() {
                     </TableBody>
                 </Table>
 
-                {filteredTransactions.length > 0 && (
+                {transactions.length > 0 && (
                     <div className="flex items-center justify-between mt-4">
                         <div className="text-xs text-muted-foreground">
-                            {startIndex + 1}-{Math.min(endIndex, filteredTransactions.length)} z {filteredTransactions.length}
+                            {(currentPage - 1) * itemsPerPage + 1}-{Math.min(currentPage * itemsPerPage, expensesData?.totalCount || 0)} z {expensesData?.totalCount || 0}
                         </div>
                         <div className="flex items-center gap-2">
                             <Button
                                 variant="outline"
                                 size="icon"
                                 className="size-8"
-                                onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                                onClick={() => navigate({ to: '/dashboard', search: (prev: any) => ({ ...prev, page: Math.max(1, currentPage - 1) }) })}
                                 disabled={currentPage === 1}
                             >
                                 <ChevronLeft className="size-4" />
@@ -192,7 +232,7 @@ export function TransactionsTable() {
                                 variant="outline"
                                 size="icon"
                                 className="size-8"
-                                onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                                onClick={() => navigate({ to: '/dashboard', search: (prev: any) => ({ ...prev, page: Math.min(totalPages, currentPage + 1) }) })}
                                 disabled={currentPage === totalPages}
                             >
                                 <ChevronRight className="size-4" />
