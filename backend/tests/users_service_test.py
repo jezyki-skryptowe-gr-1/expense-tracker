@@ -13,11 +13,11 @@ def _set_user(login: str, user_id: int):
         )
 
 
-def _set_category(category_id: int, user_id: int, name: str | None = None):
+def _set_category(category_id: int, user_id: int, name: str | None = None, color: str = "#000000"):
     with db.connection.get_connection() as conn:
         conn.execute(
-            "INSERT INTO categories (category_id, user_id, name) VALUES (%s, %s, %s)",
-            (category_id, user_id, name or f"cat-{category_id}"),
+            "INSERT INTO categories (category_id, user_id, name, color) VALUES (%s, %s, %s, %s)",
+            (category_id, user_id, name or f"cat-{category_id}", color),
         )
 
 

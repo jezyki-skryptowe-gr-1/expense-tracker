@@ -1,6 +1,5 @@
 import db.connection
 import repository.categories_repository as categories_repository
-import repository.users_repository as users_repository
 from services.categories_service import CategoriesService
 
 
@@ -12,11 +11,11 @@ def _set_user(login: str, user_id: int):
         )
 
 
-def _set_category(category_id: int, user_id: int, name: str = "cat"):
+def _set_category(category_id: int, user_id: int, name: str = "cat", color: str = "#000000"):
     with db.connection.get_connection() as conn:
         conn.execute(
-            "INSERT INTO categories (category_id, user_id, name) VALUES (%s, %s, %s)",
-            (category_id, user_id, name),
+            "INSERT INTO categories (category_id, user_id, name, color) VALUES (%s, %s, %s, %s)",
+            (category_id, user_id, name, color),
         )
 
 
@@ -47,8 +46,8 @@ def test_delete_category_blocks_other_user(monkeypatch):
 def test_get_categories_returns_only_current_user(monkeypatch):
     _set_user("owner", 1)
     _set_user("other", 2)
-    _set_category(1, 1, "owner-cat")
-    _set_category(2, 2, "other-cat")
+    _set_category(1, 1, "owner-cat", "#FF0000")
+    _set_category(2, 2, "other-cat", "#00FF00")
 
     monkeypatch.setattr("services.categories_service.get_jwt_identity", lambda: "owner")
     service = CategoriesService.get_singleton()
@@ -58,3 +57,4 @@ def test_get_categories_returns_only_current_user(monkeypatch):
     assert len(categories) == 1
     assert categories[0]["name"] == "owner-cat"
     assert categories[0]["user_id"] == 1
+    assert categories[0]["color"] == "#FF0000"

@@ -1,7 +1,5 @@
 import db.connection
-import repository.categories_repository as categories_repository
 import repository.transactions_repository as transactions_repository
-import repository.users_repository as users_repository
 from services.expenses_service import ExpensesService
 
 
@@ -13,11 +11,11 @@ def _set_user(login: str, user_id: int):
         )
 
 
-def _set_category(category_id: int, user_id: int, name: str = "cat"):
+def _set_category(category_id: int, user_id: int, name: str = "cat", color: str = "#000000"):
     with db.connection.get_connection() as conn:
         conn.execute(
-            "INSERT INTO categories (category_id, user_id, name) VALUES (%s, %s, %s)",
-            (category_id, user_id, name),
+            "INSERT INTO categories (category_id, user_id, name, color) VALUES (%s, %s, %s, %s)",
+            (category_id, user_id, name, color),
         )
 
 

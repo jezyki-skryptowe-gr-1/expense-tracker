@@ -14,19 +14,22 @@ class CategoriesService:
         login = get_jwt_identity()
         return users_repository.get_user_by_username(login)
 
-    def add_category(self, name):
+    def add_category(self, name, color):
         user = self._current_user()
         if user is None:
             return
-        categories_repository.create_category(Category(None, user.user_id, name))
+        categories_repository.create_category(Category(None, user.user_id, name, color))
 
-    def update_category(self, category_id, name):
+    def update_category(self, category_id, name, color=None):
         user = self._current_user()
         if user is None:
             return
         user_categories = categories_repository.find_by_user(user.user_id)
-        if any(c.category_id == category_id for c in user_categories):
-            categories_repository.save_category(Category(category_id, user.user_id, name))
+        existing = next((c for c in user_categories if c.category_id == category_id), None)
+        if existing:
+            updated_color = color if color is not None else existing.color
+            categories_repository.save_category(
+                Category(category_id, user.user_id, name, updated_color))
 
     def delete_category(self, category_id):
         user = self._current_user()

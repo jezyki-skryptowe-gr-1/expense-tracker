@@ -10,6 +10,8 @@ from services.categories_service import CategoriesService
 from services.users_service import UsersService
 from config import AppConfig
 from services.expenses_service import ExpensesService
+from services.summary_service import SummaryService
+from services.charts_service import ChartsService
 from flask_jwt_extended import (
     JWTManager,
     create_access_token,
@@ -24,6 +26,8 @@ def create_app() -> Flask:
     expenses_service = ExpensesService.get_singleton()
     categories_service = CategoriesService.get_singleton()
     users_service = UsersService.get_singleton()
+    summary_service = SummaryService.get_singleton()
+    charts_service = ChartsService.get_singleton()
 
     app = Flask(__name__)
 
@@ -132,7 +136,8 @@ def create_app() -> Flask:
     def add_category():
         data = request.get_json()
         category = data["category"]
-        categories_service.add_category(category)
+        color = data["color"]
+        categories_service.add_category(category, color)
         return jsonify({"status": "ok"}), 200
 
     @app.put("/api/v1/update_category")
@@ -141,7 +146,8 @@ def create_app() -> Flask:
         data = request.get_json()
         category_id = data["category_id"]
         category = data["category"]
-        categories_service.update_category(category_id, category)
+        color = data["color"]
+        categories_service.update_category(category_id, category, color)
         return jsonify({"status": "ok"}), 200
 
     @app.delete("/api/v1/delete_category")
@@ -157,6 +163,18 @@ def create_app() -> Flask:
     def categories():
         categories_list = categories_service.get_categories()
         return jsonify({"categories": categories_list}), 200
+
+    @app.get("/api/v1/summary")
+    @jwt_required()
+    def summary():
+        summary_data = summary_service.get_summary()
+        return jsonify(summary_data), 200
+
+    @app.get("/api/v1/charts")
+    @jwt_required()
+    def charts():
+        charts_data = charts_service.get_charts_data()
+        return jsonify(charts_data), 200
 
     return app
 
