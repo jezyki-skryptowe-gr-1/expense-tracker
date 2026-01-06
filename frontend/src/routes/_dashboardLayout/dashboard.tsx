@@ -1,49 +1,55 @@
 import MainDashboardView from '@/features/dashboard/views/main'
 import { createFileRoute } from '@tanstack/react-router'
-// import { dashboardApi } from '@/features/dashboard/api'
 import { z } from 'zod'
+// import { dashboardApi } from '@/features/dashboard/api'
 
 const dashboardSearchSchema = z.object({
-    page: z.number().optional().default(1),
     search: z.string().optional(),
     category: z.string().optional(),
+    from: z.string().optional(),
+    to: z.string().optional(),
+    minAmount: z.number().optional(),
+    maxAmount: z.number().optional(),
 })
 
 export const Route = createFileRoute('/_dashboardLayout/dashboard')({
     validateSearch: (search) => dashboardSearchSchema.parse(search),
     loaderDeps: ({ search }) => ({
-        page: search.page,
         search: search.search,
-        category: search.category
+        category: search.category,
+        from: search.from,
+        to: search.to,
+        minAmount: search.minAmount,
+        maxAmount: search.maxAmount
     }),
-    loader: async ({
-                       // context, deps
-    }) => {
-        // const expensesParams = {
-        //     page: deps.page || 1,
-        //     limit: 5,
-        //     search: deps.search,
-        //     category: deps.category === 'all' ? undefined : deps.category,
-        // }
-        //
-        // await Promise.all([
-        //     context.queryClient.ensureQueryData({
-        //         queryKey: ['expenses', expensesParams],
-        //         queryFn: () => dashboardApi.getExpenses(expensesParams),
-        //     }),
-        //     context.queryClient.ensureQueryData({
-        //         queryKey: ['categories'],
-        //         queryFn: dashboardApi.getCategories,
-        //     }),
-        //     context.queryClient.ensureQueryData({
-        //         queryKey: ['chartData'],
-        //         queryFn: dashboardApi.getChartData,
-        //     }),
-        //     context.queryClient.ensureQueryData({
-        //         queryKey: ['summary'],
-        //         queryFn: dashboardApi.getSummary,
-        //     }),
-        // ])
-    },
+    // loader: async ({ context: { queryClient }, deps }) => {
+    //     const expensesParams = {
+    //         search: deps.search,
+    //         category: deps.category === 'all' ? undefined : deps.category,
+    //         from: deps.from,
+    //         to: deps.to,
+    //         minAmount: deps.minAmount,
+    //         maxAmount: deps.maxAmount
+    //     }
+    //
+    //     await Promise.all([
+    //         queryClient.ensureQueryData({
+    //             queryKey: ['expenses', expensesParams],
+    //             queryFn: () => dashboardApi.getExpenses(expensesParams)
+    //         }),
+    //         queryClient.ensureQueryData({
+    //             queryKey: ['categories'],
+    //             queryFn: () => dashboardApi.getCategories()
+    //         }),
+    //         queryClient.ensureQueryData({
+    //             queryKey: ['summary'],
+    //             queryFn: () => dashboardApi.getSummary()
+    //         }),
+    //         queryClient.ensureQueryData({
+    //             queryKey: ['chartData'],
+    //             queryFn: () => dashboardApi.getChartData()
+    //         })
+    //     ])
+    // },
     component: MainDashboardView,
 })

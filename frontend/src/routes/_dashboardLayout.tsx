@@ -1,4 +1,4 @@
-import { Outlet, createFileRoute } from '@tanstack/react-router'
+import { Outlet, createFileRoute} from '@tanstack/react-router'
 // import { authApi } from '@/features/auth/api'
 
 export const Route = createFileRoute('/_dashboardLayout')({

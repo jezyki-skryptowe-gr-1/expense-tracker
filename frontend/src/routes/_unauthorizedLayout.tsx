@@ -16,6 +16,14 @@ export const Route = createFileRoute('/_unauthorizedLayout')({
     //         });
     //         throw redirect({
     //             to: '/dashboard',
+    //             search: {
+    //                 from: undefined,
+    //                 to: undefined,
+    //                 search: undefined,
+    //                 category: undefined,
+    //                 minAmount: undefined,
+    //                 maxAmount: undefined
+    //             }
     //         });
     //     } catch (e) {
     //         if (e instanceof Error && 'status' in e && e.status === 307) {
