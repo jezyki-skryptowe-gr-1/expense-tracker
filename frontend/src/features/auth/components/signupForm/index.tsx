@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form } from '@/components/ui/form'
 import FormInput from '@/components/formInput'
 import { signupSchema, type SignupFormData } from '@/features/auth/schemas'
-import { Lock, Mail, User } from 'lucide-react'
+import { Lock, Mail, User, DollarSign } from 'lucide-react'
 import { Link, useRouter } from '@tanstack/react-router'
 import { useSignupMutation } from '@/features/auth/query'
 import { toast } from 'react-toastify'
@@ -20,7 +20,8 @@ const SignupForm = () => {
             name: '',
             email: '',
             password: '',
-            confirmPassword: ''
+            confirmPassword: '',
+            budget: '0'
         }
     })
 
@@ -77,6 +78,14 @@ const SignupForm = () => {
                             placeholder="••••••••"
                             icon={Lock}
                             type='password'
+                        />
+
+                        <FormInput<SignupFormData>
+                            name="budget"
+                            label="Miesięczny budżet (PLN)"
+                            placeholder="0.00"
+                            icon={DollarSign}
+                            type='number'
                         />
 
                         <Button

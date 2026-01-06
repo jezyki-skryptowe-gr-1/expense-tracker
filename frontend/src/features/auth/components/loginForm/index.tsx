@@ -26,7 +26,18 @@ const LoginForm = () => {
     })
 
     const onSubmit = (_data: LoginFormData) => {
-        router.navigate({ to: '/dashboard', search: { page: 1 }, viewTransition: true })
+        router.navigate({ 
+            to: '/dashboard', 
+            search: {
+                search: undefined,
+                category: undefined,
+                from: undefined,
+                to: undefined,
+                minAmount: undefined,
+                maxAmount: undefined
+            }, 
+            viewTransition: true 
+        })
 
         // loginMutation.mutate(data, {
         //     onSuccess: async () => {

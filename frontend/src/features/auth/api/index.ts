@@ -10,7 +10,8 @@ export const authApi = {
     signup: async (data: SignupFormData) => {
         const response = await apiClient.post('/v1/register', {
             login: data.name,
-            password: data.password
+            password: data.password,
+            budget: Number(data.budget)
         });
         return response.data;
     },

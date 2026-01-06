@@ -13,13 +13,18 @@ import {
 import { Button } from "@/components/ui/button"
 import { Form, FormControl, FormField, FormItem, FormMessage } from "@/components/ui/form"
 import FormInput from '@/components/formInput'
-import { User, Mail, Lock } from 'lucide-react'
+import { User, DollarSign } from 'lucide-react'
 import { z } from 'zod'
+import { useUserQuery } from '@/features/auth/query'
+import { useUpdateUserMutation } from '../../query'
+import { useEffect } from 'react'
+import { toast } from 'react-toastify'
 
 const editProfileSchema = z.object({
     name: z.string().min(1, 'Imię i nazwisko jest wymagane'),
-    email: z.string().email('Nieprawidłowy adres email'),
-    password: z.string().optional(),
+    budget: z.string().min(1, 'Budżet jest wymagany').refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
+        message: 'Budżet musi być liczbą większą lub równą zero',
+    }),
 })
 
 type EditProfileFormData = z.infer<typeof editProfileSchema>
@@ -30,19 +35,36 @@ interface EditProfileModalProps {
 }
 
 export function EditProfileModal({ open, onOpenChange }: EditProfileModalProps) {
+    const { data: user } = useUserQuery()
+    const updateUserMutation = useUpdateUserMutation()
+
     const form = useForm<EditProfileFormData>({
         resolver: zodResolver(editProfileSchema),
         defaultValues: {
             name: '',
-            email: '',
-            password: ''
+            budget: '0'
         }
     })
 
+    useEffect(() => {
+        if (user && open) {
+            form.reset({
+                name: typeof user === 'string' ? user : user.login || '',
+                budget: '0' // we don't have budget in user query yet
+            })
+        }
+    }, [user, open, form])
+
     const onSubmit = (data: EditProfileFormData) => {
-        console.log("[v0] Editing profile:", data)
-        form.reset()
-        onOpenChange(false)
+        updateUserMutation.mutate(Number(data.budget), {
+            onSuccess: () => {
+                toast.success('Profil został zaktualizowany')
+                onOpenChange(false)
+            },
+            onError: () => {
+                toast.error('Błąd podczas aktualizacji profilu')
+            }
+        })
     }
 
     return (
@@ -77,33 +99,16 @@ export function EditProfileModal({ open, onOpenChange }: EditProfileModalProps) 
                             />
                             <FormField
                                 control={form.control}
-                                name="email"
+                                name="budget"
                                 render={() => (
                                     <FormItem>
                                         <FormControl>
                                             <FormInput<EditProfileFormData>
-                                                name="email"
-                                                label="Adres email"
-                                                placeholder="jan@example.com"
-                                                icon={Mail}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
-                            <FormField
-                                control={form.control}
-                                name="password"
-                                render={() => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <FormInput<EditProfileFormData>
-                                                name="password"
-                                                label="Nowe hasło (opcjonalne)"
-                                                placeholder="••••••••"
-                                                icon={Lock}
-                                                type="password"
+                                                name="budget"
+                                                label="Miesięczny budżet (PLN)"
+                                                placeholder="0.00"
+                                                icon={DollarSign}
+                                                type="number"
                                             />
                                         </FormControl>
                                         <FormMessage />

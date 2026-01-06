@@ -39,7 +39,7 @@ export const dashboardApi = {
         return response.data;
     },
 
-    getExpenses: async (params?: { page?: number; limit?: number; search?: string; category?: string }): Promise<Expenses> => {
+    getExpenses: async (params?: { search?: string; category?: string; from?: string; to?: string; minAmount?: number; maxAmount?: number }): Promise<Expenses> => {
         const response = await apiClient.get<Expenses>('/api/v1/expenses', { params });
         return response.data;
     },

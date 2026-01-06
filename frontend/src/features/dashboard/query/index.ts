@@ -22,10 +22,12 @@ export const useSummaryQuery = () => {
 };
 
 export const useExpensesQuery = (params: { 
-    page: number; 
-    limit: number; 
     search?: string; 
-    category?: string 
+    category?: string;
+    from?: string;
+    to?: string;
+    minAmount?: number;
+    maxAmount?: number;
 }) => {
     return useQuery({
         queryKey: ['expenses', params],
