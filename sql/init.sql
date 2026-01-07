@@ -8,6 +8,7 @@ CREATE TABLE categories (
     category_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
     name VARCHAR(100) NOT NULL,
+    color VARCHAR(7) DEFAULT '#000000',
 
     CONSTRAINT unique_user_category UNIQUE (user_id, name)
 );

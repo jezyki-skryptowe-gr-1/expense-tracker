@@ -1,0 +1,60 @@
+import db.connection
+import repository.categories_repository as categories_repository
+from services.categories_service import CategoriesService
+
+
+def _set_user(login: str, user_id: int):
+    with db.connection.get_connection() as conn:
+        conn.execute(
+            "INSERT INTO users (user_id, username, password_hash) VALUES (%s, %s, 'pw')",
+            (user_id, login),
+        )
+
+
+def _set_category(category_id: int, user_id: int, name: str = "cat", color: str = "#000000"):
+    with db.connection.get_connection() as conn:
+        conn.execute(
+            "INSERT INTO categories (category_id, user_id, name, color) VALUES (%s, %s, %s, %s)",
+            (category_id, user_id, name, color),
+        )
+
+
+def test_delete_category_allows_owner(monkeypatch):
+    _set_user("u1", 1)
+    _set_category(1, 1, "to-delete")
+    monkeypatch.setattr("services.categories_service.get_jwt_identity", lambda: "u1")
+    service = CategoriesService.get_singleton()
+
+    service.delete_category(1)
+
+    assert categories_repository.find_by_user(1) == []
+
+
+def test_delete_category_blocks_other_user(monkeypatch):
+    _set_user("u1", 1)
+    _set_user("u2", 2)
+    _set_category(1, 1, "owned")
+    monkeypatch.setattr("services.categories_service.get_jwt_identity", lambda: "u2")
+    service = CategoriesService.get_singleton()
+
+    service.delete_category(1)
+
+    # Category remains because user 2 is not the owner
+    assert len(categories_repository.find_by_user(1)) == 1
+
+
+def test_get_categories_returns_only_current_user(monkeypatch):
+    _set_user("owner", 1)
+    _set_user("other", 2)
+    _set_category(1, 1, "owner-cat", "#FF0000")
+    _set_category(2, 2, "other-cat", "#00FF00")
+
+    monkeypatch.setattr("services.categories_service.get_jwt_identity", lambda: "owner")
+    service = CategoriesService.get_singleton()
+
+    categories = service.get_categories()
+
+    assert len(categories) == 1
+    assert categories[0]["name"] == "owner-cat"
+    assert categories[0]["user_id"] == 1
+    assert categories[0]["color"] == "#FF0000"

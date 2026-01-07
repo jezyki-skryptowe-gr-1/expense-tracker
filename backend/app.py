@@ -10,7 +10,15 @@ from services.categories_service import CategoriesService
 from services.users_service import UsersService
 from config import AppConfig
 from services.expenses_service import ExpensesService
-from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, jwt_required, get_jwt_identity
+from services.summary_service import SummaryService
+from services.charts_service import ChartsService
+from flask_jwt_extended import (
+    JWTManager,
+    create_access_token,
+    create_refresh_token,
+    get_jwt_identity,
+    jwt_required,
+)
 
 
 def create_app() -> Flask:
@@ -18,12 +26,14 @@ def create_app() -> Flask:
     expenses_service = ExpensesService.get_singleton()
     categories_service = CategoriesService.get_singleton()
     users_service = UsersService.get_singleton()
+    summary_service = SummaryService.get_singleton()
+    charts_service = ChartsService.get_singleton()
 
     app = Flask(__name__)
 
     # JWT
-    app.config['SECRET_KEY'] = 'your_strong_secret_key'
-    app.config["JWT_SECRET_KEY"] = 'your_jwt_secret_key'
+    app.config['SECRET_KEY'] = cfg.secret_key
+    app.config["JWT_SECRET_KEY"] = cfg.jwt_secret_key
     app.config['JWT_TOKEN_LOCATION'] = ['headers']
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
     app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
@@ -41,11 +51,11 @@ def create_app() -> Flask:
     def health():
         return jsonify({"status": "ok"}), 200
 
-    @app.post("/api/v1/me")
-    @jwt_required
+    @app.get("/api/v1/me")
+    @jwt_required()
     def me():
         lgn = get_jwt_identity()
-        return lgn, 200
+        return jsonify({"login": lgn}), 200
 
     @app.post("/api/v1/register")
     def add_user():
@@ -109,7 +119,7 @@ def create_app() -> Flask:
 
     @app.delete("/api/v1/delete_expense")
     @jwt_required()
-    def register():
+    def delete_expense():
         data = request.get_json()
         expense_id = data["expense_id"]
         expenses_service.delete_expense(expense_id)
@@ -126,7 +136,8 @@ def create_app() -> Flask:
     def add_category():
         data = request.get_json()
         category = data["category"]
-        categories_service.add_category(category)
+        color = data["color"]
+        categories_service.add_category(category, color)
         return jsonify({"status": "ok"}), 200
 
     @app.put("/api/v1/update_category")
@@ -135,7 +146,8 @@ def create_app() -> Flask:
         data = request.get_json()
         category_id = data["category_id"]
         category = data["category"]
-        categories_service.update_category(category_id, category)
+        color = data["color"]
+        categories_service.update_category(category_id, category, color)
         return jsonify({"status": "ok"}), 200
 
     @app.delete("/api/v1/delete_category")
@@ -151,6 +163,18 @@ def create_app() -> Flask:
     def categories():
         categories_list = categories_service.get_categories()
         return jsonify({"categories": categories_list}), 200
+
+    @app.get("/api/v1/summary")
+    @jwt_required()
+    def summary():
+        summary_data = summary_service.get_summary()
+        return jsonify(summary_data), 200
+
+    @app.get("/api/v1/charts")
+    @jwt_required()
+    def charts():
+        charts_data = charts_service.get_charts_data()
+        return jsonify(charts_data), 200
 
     return app
 

@@ -23,3 +23,7 @@ class AppConfig:
         self.db_password = os.getenv("DB_PASSWORD", "postgres")
         self.database = os.getenv("DB_NAME", "postgres")
 
+        # Security
+        self.secret_key = os.getenv("SECRET_KEY", "your_strong_secret_key")
+        self.jwt_secret_key = os.getenv("JWT_SECRET_KEY", "your_jwt_secret_key")
+
