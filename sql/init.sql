@@ -1,7 +1,8 @@
 CREATE TABLE users (
     user_id SERIAL PRIMARY KEY,
     username VARCHAR(50) UNIQUE NOT NULL,
-    password_hash VARCHAR(255) NOT NULL
+    password_hash VARCHAR(255) NOT NULL,
+    budget NUMERIC(10, 2) DEFAULT 0
 );
 
 CREATE TABLE categories (

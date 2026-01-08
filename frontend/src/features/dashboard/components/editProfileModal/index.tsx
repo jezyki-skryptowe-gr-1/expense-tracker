@@ -21,7 +21,6 @@ import { useEffect } from 'react'
 import { toast } from 'react-toastify'
 
 const editProfileSchema = z.object({
-    name: z.string().min(1, 'Imię i nazwisko jest wymagane'),
     budget: z.string().min(1, 'Budżet jest wymagany').refine((val) => !isNaN(Number(val)) && Number(val) >= 0, {
         message: 'Budżet musi być liczbą większą lub równą zero',
     }),
@@ -41,7 +40,6 @@ export function EditProfileModal({ open, onOpenChange }: EditProfileModalProps) 
     const form = useForm<EditProfileFormData>({
         resolver: zodResolver(editProfileSchema),
         defaultValues: {
-            name: '',
             budget: '0'
         }
     })
@@ -49,8 +47,7 @@ export function EditProfileModal({ open, onOpenChange }: EditProfileModalProps) 
     useEffect(() => {
         if (user && open) {
             form.reset({
-                name: typeof user === 'string' ? user : user.login || '',
-                budget: '0' // we don't have budget in user query yet
+                budget: '0'
             })
         }
     }, [user, open, form])
@@ -80,23 +77,6 @@ export function EditProfileModal({ open, onOpenChange }: EditProfileModalProps) 
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)}>
                         <div className="grid gap-4 py-4">
-                            <FormField
-                                control={form.control}
-                                name="name"
-                                render={() => (
-                                    <FormItem>
-                                        <FormControl>
-                                            <FormInput<EditProfileFormData>
-                                                name="name"
-                                                label="Imię i nazwisko"
-                                                placeholder="Jan Kowalski"
-                                                icon={User}
-                                            />
-                                        </FormControl>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
                             <FormField
                                 control={form.control}
                                 name="budget"

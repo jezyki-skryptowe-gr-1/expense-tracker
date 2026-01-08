@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { dashboardApi } from '../api';
 
 import type {
+    AddCategoryRequest,
     AddExpenseRequest,
     UpdateCategoryRequest,
     UpdateExpenseRequest,
@@ -97,7 +98,7 @@ export const useAddCategoryMutation = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (category: string) => dashboardApi.addCategory(category),
+        mutationFn: (data: AddCategoryRequest) => dashboardApi.addCategory(data),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['categories'] });
         },

@@ -46,7 +46,6 @@ export function TransactionsTable() {
         }
     })
 
-    // Sync form with URL if it changes from outside (e.g. clear filters or browser back/forward)
     useEffect(() => {
         form.reset({
             search: searchQuery,
@@ -66,10 +65,9 @@ export function TransactionsTable() {
         minAmount,
         maxAmount
     })
-    
+
     const { data: categoriesData, isLoading: categoriesLoading } = useCategoriesQuery()
-    
-    const transactions = expensesData?.expenses || []
+
     const categories = categoriesData?.categories || []
 
     const handleSearch = (data: FilterFormValues) => {
@@ -81,8 +79,8 @@ export function TransactionsTable() {
                 category: data.category === "all" ? undefined : data.category,
                 from: data.from,
                 to: data.to,
-                minAmount: data.minAmount,
-                maxAmount: data.maxAmount,
+                minAmount: data.minAmount === undefined || data.minAmount === ("" as any) ? undefined : Number(data.minAmount),
+                maxAmount: data.maxAmount === undefined || data.maxAmount === ("" as any) ? undefined : Number(data.maxAmount),
             })
         })
     }
@@ -221,50 +219,52 @@ export function TransactionsTable() {
                             <TableHead className="text-right">Kwota</TableHead>
                         </TableRow>
                     </TableHeader>
-                    <TableBody>
-                        {isPending && transactions.length === 0 ? (
-                            [1, 2, 3, 4, 5].map((i) => (
-                                <TableRow key={i}>
-                                    <TableCell colSpan={5}>
-                                        <Skeleton className="h-12 w-full" />
-                                    </TableCell>
-                                </TableRow>
-                            ))
-                        ) : transactions.length === 0 ? (
-                            <TableRow>
-                                <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
-                                    <div className="flex flex-col items-center gap-1">
-                                        <span className="font-semibold">Brak wyników</span>
-                                        <span className="text-sm">Zmień filtry, aby zobaczyć transakcje.</span>
-                                    </div>
-                                </TableCell>
-                            </TableRow>
-                        ) : (
-                            transactions.map((transaction) => {
-                                return (
-                                    <TableRow key={transaction.expense_id} className={isPending ? "opacity-50" : ""}>
-                                        <TableCell>
-                                            <div className="p-2 rounded-lg w-fit bg-card">
-                                                <DollarSign className="size-4 text-muted-foreground" />
-                                            </div>
-                                        </TableCell>
-                                        <TableCell className="font-medium">{transaction.description || 'Bez opisu'}</TableCell>
-                                        <TableCell className="hidden sm:table-cell">
-                                            <Badge variant="outline" className="font-normal">
-                                                {transaction.category}
-                                            </Badge>
-                                        </TableCell>
-                                        <TableCell className="hidden md:table-cell text-muted-foreground">
-                                            {transaction.date ? new Date(transaction.date).toLocaleDateString("pl-PL") : 'Brak daty'}
-                                        </TableCell>
-                                        <TableCell className="text-right font-semibold whitespace-nowrap">
-                                            {transaction.amount.toFixed(2)} PLN
+                    {expensesData !== undefined && (
+                        <TableBody>
+                            {isPending && expensesData.length === 0 ? (
+                                [1, 2, 3, 4, 5].map((i) => (
+                                    <TableRow key={i}>
+                                        <TableCell colSpan={5}>
+                                            <Skeleton className="h-12 w-full" />
                                         </TableCell>
                                     </TableRow>
-                                )
-                            })
-                        )}
-                    </TableBody>
+                                ))
+                            ) : expensesData.length === 0 ? (
+                                <TableRow>
+                                    <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
+                                        <div className="flex flex-col items-center gap-1">
+                                            <span className="font-semibold">Brak wyników</span>
+                                            <span className="text-sm">Zmień filtry, aby zobaczyć transakcje.</span>
+                                        </div>
+                                    </TableCell>
+                                </TableRow>
+                            ) : (
+                                expensesData.map((transaction) => {
+                                    return (
+                                        <TableRow key={transaction.expense_id} className={isPending ? "opacity-50" : ""}>
+                                            <TableCell>
+                                                <div className="p-2 rounded-lg w-fit bg-card">
+                                                    <DollarSign className="size-4 text-muted-foreground" />
+                                                </div>
+                                            </TableCell>
+                                            <TableCell className="font-medium">{transaction.notes || 'Bez opisu'}</TableCell>
+                                            <TableCell className="hidden sm:table-cell">
+                                                <Badge variant="outline" className="font-normal">
+                                                    {categories.find(c => c.category_id === transaction.category_id)?.name || 'Nieznana'}
+                                                </Badge>
+                                            </TableCell>
+                                            <TableCell className="hidden md:table-cell text-muted-foreground">
+                                                {transaction.transaction_date ? new Date(transaction.transaction_date).toLocaleDateString("pl-PL") : 'Brak daty'}
+                                            </TableCell>
+                                            <TableCell className="text-right font-semibold whitespace-nowrap">
+                                                {transaction.amount} PLN
+                                            </TableCell>
+                                        </TableRow>
+                                    )
+                                })
+                            )}
+                        </TableBody>
+                    )}
                 </Table>
 
             </CardContent>

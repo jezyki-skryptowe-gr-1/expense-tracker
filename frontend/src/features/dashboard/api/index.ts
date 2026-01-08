@@ -2,8 +2,7 @@ import apiClient from '@/lib/api';
 import type {
     AddCategoryRequest,
     AddExpenseRequest,
-    Base, Categories, ChartData,
-    Expenses, Summary, UpdateCategoryRequest,
+    Base, Categories, ChartData, Expense, Summary, UpdateCategoryRequest,
     UpdateExpenseRequest,
     UpdateUserRequest
 } from "@/features/dashboard/types";
@@ -39,13 +38,13 @@ export const dashboardApi = {
         return response.data;
     },
 
-    getExpenses: async (params?: { search?: string; category?: string; from?: string; to?: string; minAmount?: number; maxAmount?: number }): Promise<Expenses> => {
-        const response = await apiClient.get<Expenses>('/v1/expenses', { params });
+    getExpenses: async (params?: { search?: string; category?: string; from?: string; to?: string; minAmount?: number; maxAmount?: number }): Promise<Expense[]> => {
+        const response = await apiClient.get<Expense[]>('/v1/expenses', { params });
         return response.data;
     },
 
-    addCategory: async (category: string): Promise<Base> => {
-        const response = await apiClient.post<Base>('/v1/add_category', { category } as AddCategoryRequest);
+    addCategory: async (data: AddCategoryRequest): Promise<Base> => {
+        const response = await apiClient.post<Base>('/v1/add_category', data);
         return response.data;
     },
 

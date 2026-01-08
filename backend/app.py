@@ -73,7 +73,8 @@ def create_app() -> Flask:
         data = request.get_json()
         lgn = data["login"]
         password = data["password"]
-        users_service.register_user(lgn, password)
+        budget = data.get("budget")
+        users_service.register_user(lgn, password, budget)
         return "", 200
 
     @app.post("/api/v1/login")
@@ -115,9 +116,14 @@ def create_app() -> Flask:
     @jwt_required()
     def add_expense():
         data = request.get_json()
-        category = data["category"]
+        print(f"[DEBUG_LOG] add_expense data: {data}")
+        category_id = data.get("category_id") or data.get("category")
+        if not category_id:
+            return jsonify({"error": "Missing category_id"}), 400
         amount = data["amount"]
-        expenses_service.add_expense(category, amount)
+        notes = data.get("description", "")
+        transaction_date = data.get("date")
+        expenses_service.add_expense(category_id, amount, notes, transaction_date)
         return jsonify({"status": "ok"}), 200
 
     @app.put("/api/v1/update_expense")
@@ -125,9 +131,9 @@ def create_app() -> Flask:
     def update_expense():
         data = request.get_json()
         expense_id = data["expense_id"]
-        category = data["category"]
+        category_id = data["category_id"]
         amount = data["amount"]
-        expenses_service.update_expense(expense_id, category, amount)
+        expenses_service.update_expense(expense_id, category_id, amount)
         return jsonify({"status": "ok"}), 200
 
     @app.delete("/api/v1/delete_expense")

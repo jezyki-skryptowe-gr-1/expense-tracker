@@ -14,13 +14,13 @@ export const authApi = {
         const response = await apiClient.post('/v1/register', {
             login: data.email,
             password: data.password,
-            // budget: Number(data.budget)
+            budget: Number(data.budget)
         });
         return response.data;
     },
     getMe: async () => {
         try {
-            const response = await apiClient.get('/v1/me');
+            const response = await apiClient.get<{login: string}>('/v1/me');
             localStorage.setItem('auth_hint', 'true');
             return response.data;
         } catch (error) {
