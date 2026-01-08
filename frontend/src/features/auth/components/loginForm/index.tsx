@@ -10,8 +10,7 @@ import { loginSchema, type LoginFormData } from '@/features/auth/schemas'
 import { Lock, Mail } from 'lucide-react'
 import { Link, useRouter } from '@tanstack/react-router'
 import { useLoginMutation } from '@/features/auth/query'
-// import { toast } from 'react-toastify'
-// import apiClient from '@/lib/api'
+import {toast} from "react-toastify";
 
 const LoginForm = () => {
     const router = useRouter()
@@ -25,33 +24,34 @@ const LoginForm = () => {
         }
     })
 
-    const onSubmit = (_data: LoginFormData) => {
-        router.navigate({ 
-            to: '/dashboard', 
-            search: {
-                search: undefined,
-                category: undefined,
-                from: undefined,
-                to: undefined,
-                minAmount: undefined,
-                maxAmount: undefined
-            }, 
-            viewTransition: true 
-        })
+    const onSubmit = (data: LoginFormData) => {
+        loginMutation.mutate(data, {
+            onSuccess: async () => {
+                try {
+                    router.navigate({
+                        to: '/dashboard',
+                        search: {
+                            search: undefined,
+                            category: undefined,
+                            from: undefined,
+                            to: undefined,
+                            minAmount: undefined,
+                            maxAmount: undefined
+                        },
+                        viewTransition: true
+                    })
 
-        // loginMutation.mutate(data, {
-        //     onSuccess: async () => {
-        //         try {
-        //             // await apiClient.get('/auth/me');
-        //         } catch (error) {
-        //             console.error('Failed to fetch user data', error);
-        //         }
-        //         router.navigate({ to: '/dashboard' })
-        //     },
-        //     onError: (error: any) => {
-        //         toast.error(error.response?.data?.message || 'Błąd logowania')
-        //     }
-        // })
+                    // await apiClient.get('/auth/me');
+
+                } catch (error) {
+                    console.error('Failed to fetch user data', error);
+                }
+                router.navigate({ to: '/dashboard' })
+            },
+            onError: (error: any) => {
+                toast.error(error.response?.data?.message || 'Błąd logowania')
+            }
+        })
     }
 
     return (

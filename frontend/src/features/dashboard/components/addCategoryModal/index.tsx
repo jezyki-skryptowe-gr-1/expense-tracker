@@ -15,6 +15,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import FormInput from '@/components/formInput'
 import { Tag, Palette } from 'lucide-react'
 import { addCategorySchema, type AddCategoryFormData } from '../../schemas'
+import { useAddCategoryMutation } from '../../query'
+import { toast } from 'react-toastify'
 
 interface AddCategoryModalProps {
     open: boolean
@@ -33,6 +35,7 @@ const CATEGORY_COLORS = [
 ]
 
 export function AddCategoryModal({ open, onOpenChange }: AddCategoryModalProps) {
+    const addCategoryMutation = useAddCategoryMutation()
     const form = useForm<AddCategoryFormData>({
         resolver: zodResolver(addCategorySchema),
         defaultValues: {
@@ -42,9 +45,19 @@ export function AddCategoryModal({ open, onOpenChange }: AddCategoryModalProps) 
     })
 
     const onSubmit = (data: AddCategoryFormData) => {
-        console.log("Adding category:", data)
-        form.reset()
-        onOpenChange(false)
+        addCategoryMutation.mutate({
+            category: data.name,
+            color: data.color
+        }, {
+            onSuccess: () => {
+                toast.success('Kategoria została dodana')
+                form.reset()
+                onOpenChange(false)
+            },
+            onError: (error: any) => {
+                toast.error(error.response?.data?.message || 'Nie udało się dodać kategorii')
+            }
+        })
     }
 
     return (
@@ -100,8 +113,8 @@ export function AddCategoryModal({ open, onOpenChange }: AddCategoryModalProps) 
                             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                                 Anuluj
                             </Button>
-                            <Button type="submit" disabled={form.formState.isSubmitting}>
-                                Dodaj kategorię
+                            <Button type="submit" disabled={addCategoryMutation.isPending}>
+                                {addCategoryMutation.isPending ? 'Dodawanie...' : 'Dodaj kategorię'}
                             </Button>
                         </DialogFooter>
                     </form>

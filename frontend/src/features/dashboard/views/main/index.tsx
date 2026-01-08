@@ -1,4 +1,4 @@
-import { ChartsSection } from "../../components/charts";
+// import { ChartsSection } from "../../components/charts";
 import { DashboardHeader } from "../../components/header";
 import { SummaryCards } from "../../components/summaryCards";
 import { TransactionsTable } from "../../components/table";
@@ -27,7 +27,7 @@ const MainDashboardView = () => {
         <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-24 space-y-6">
             <DashboardHeader onCategoriesClick={() => setCategoriesModalOpen(true)} onAddExpenseClick={() => setAddExpenseModalOpen(true)} onEditProfile={handleEditProfile} onLogout={handleLogout} />
             <SummaryCards />
-            <ChartsSection />
+            {/*<ChartsSection />*/}
             <TransactionsTable />
             <Suspense fallback={<div>Loading...</div>}>
                 <CategoriesListModal open={categoriesModalOpen} onOpenChange={setCategoriesModalOpen} />

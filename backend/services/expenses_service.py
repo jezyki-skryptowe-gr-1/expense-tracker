@@ -16,7 +16,7 @@ class ExpensesService:
         login = get_jwt_identity()
         return users_repository.get_user_by_username(login)
 
-    def add_expense(self, category_id, amount, notes: str = ""):
+    def add_expense(self, category_id, amount, notes: str = "", transaction_date=None):
         user = self._current_user()
         if user is None:
             return None
@@ -26,7 +26,7 @@ class ExpensesService:
             user_id=user.user_id,
             category_id=category_id,
             amount=amount,
-            transaction_date=date.today(),
+            transaction_date=transaction_date if transaction_date else date.today(),
             notes=notes,
         )
         return transactions_repository.create_transaction(transaction)
@@ -65,4 +65,4 @@ class ExpensesService:
         user = self._current_user()
         if user is None:
             return []
-        return [t.__dict__ for t in transactions_repository.find_by_user(user.user_id)]
+        return transactions_repository.find_by_user(user.user_id)

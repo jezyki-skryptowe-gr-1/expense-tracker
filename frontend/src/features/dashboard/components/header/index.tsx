@@ -24,7 +24,7 @@ export function DashboardHeader({ onCategoriesClick, onAddExpenseClick, onEditPr
                     {isLoading ? (
                         <Skeleton className="h-4 w-48" />
                     ) : (
-                        <p>Witaj ponownie, {user || 'Użytkowniku'}! Oto podsumowanie Twoich finansów.</p>
+                        <p>Witaj ponownie, {user?.login || 'Użytkowniku'}! Oto podsumowanie Twoich finansów.</p>
                     )}
                 </div>
             </div>
@@ -46,7 +46,7 @@ export function DashboardHeader({ onCategoriesClick, onAddExpenseClick, onEditPr
                     <PopoverContent className="w-48" align="end">
                         <div className="space-y-1">
                             <div className="px-2 py-1.5 text-sm font-semibold border-b mb-1 truncate">
-                                {isLoading ? <Skeleton className="h-4 w-full" /> : (user || 'Użytkownik')}
+                                {isLoading ? <Skeleton className="h-4 w-full" /> : (user?.login || 'Użytkownik')}
                             </div>
                             <Button variant="ghost" className="w-full justify-start" size="sm" onClick={onEditProfile}>
                                 <Settings className="mr-2 size-4" />

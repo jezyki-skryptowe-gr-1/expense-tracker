@@ -21,15 +21,18 @@ import { pl } from "date-fns/locale"
 import FormInput from '@/components/formInput'
 import { DollarSign, CalendarIcon, FileText } from 'lucide-react'
 import { addExpenseSchema, type AddExpenseFormData } from '../../schemas'
+import { useAddExpenseMutation, useCategoriesQuery } from '../../query'
+import { toast } from 'react-toastify'
+import { Loader2 } from 'lucide-react'
 
 interface AddExpenseModalProps {
     open: boolean
     onOpenChange: (open: boolean) => void
 }
 
-const CATEGORIES = ["Jedzenie", "Transport", "Dom", "Zakupy", "Rozrywka", "Zdrowie", "Inne"]
-
 export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
+    const { data: categoriesData, isLoading: isLoadingCategories } = useCategoriesQuery()
+    const addExpenseMutation = useAddExpenseMutation()
     const form = useForm<AddExpenseFormData>({
         resolver: zodResolver(addExpenseSchema),
         defaultValues: {
@@ -40,9 +43,22 @@ export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
         }
     })
 
-    const onSubmit = (_data: AddExpenseFormData) => {
-        form.reset()
-        onOpenChange(false)
+    const onSubmit = (data: AddExpenseFormData) => {
+        addExpenseMutation.mutate({
+            amount: Number(data.amount),
+            category_id: Number(data.category),
+            description: data.description,
+            date: format(data.date, 'yyyy-MM-dd')
+        }, {
+            onSuccess: () => {
+                toast.success('Wydatek został dodany')
+                form.reset()
+                onOpenChange(false)
+            },
+            onError: (error: any) => {
+                toast.error(error.response?.data?.message || 'Nie udało się dodać wydatku')
+            }
+        })
     }
 
     return (
@@ -86,11 +102,27 @@ export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
                                                     </SelectTrigger>
                                                 </FormControl>
                                                 <SelectContent>
-                                                    {CATEGORIES.map((cat) => (
-                                                        <SelectItem key={cat} value={cat}>
-                                                            {cat}
-                                                        </SelectItem>
-                                                    ))}
+                                                    {isLoadingCategories ? (
+                                                        <div className="flex items-center justify-center py-2">
+                                                            <Loader2 className="size-4 animate-spin" />
+                                                        </div>
+                                                    ) : categoriesData?.categories && categoriesData.categories.length > 0 ? (
+                                                        categoriesData.categories.map((cat) => (
+                                                            <SelectItem key={cat.category_id} value={cat.category_id.toString()}>
+                                                                <div className="flex items-center gap-2">
+                                                                    <div
+                                                                        className="size-2 rounded-full"
+                                                                        style={{ backgroundColor: cat.color }}
+                                                                    />
+                                                                    {cat.name}
+                                                                </div>
+                                                            </SelectItem>
+                                                        ))
+                                                    ) : (
+                                                        <div className="text-xs text-center py-2 text-muted-foreground">
+                                                            Brak kategorii. Dodaj je najpierw.
+                                                        </div>
+                                                    )}
                                                 </SelectContent>
                                             </Select>
                                             <FormMessage />
@@ -143,8 +175,8 @@ export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
                             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                                 Anuluj
                             </Button>
-                            <Button type="submit" disabled={form.formState.isSubmitting}>
-                                Dodaj wydatek
+                            <Button type="submit" disabled={addExpenseMutation.isPending}>
+                                {addExpenseMutation.isPending ? 'Dodawanie...' : 'Dodaj wydatek'}
                             </Button>
                         </DialogFooter>
                     </form>

@@ -41,11 +41,8 @@ class SummaryService:
         # Calculate monthly expenses
         monthly_expenses = sum(t.amount for t in monthly_transactions)
 
-        # Get all budgets for the user
-        budgets = budgets_repository.find_by_user(user.user_id)
-
-        # Calculate total balance (sum of all budget limits)
-        total_balance = sum(b.limit_amount for b in budgets)
+        # Total balance is the global budget from the user entity
+        total_balance = user.budget
 
         # Calculate budget remaining
         budget_remaining = total_balance - monthly_expenses

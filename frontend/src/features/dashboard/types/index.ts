@@ -14,15 +14,10 @@ export interface Categories {
 
 export interface Expense {
     expense_id: number;
-    category: string;
+    category_id: number;
     amount: number;
-    date?: string;
-    description?: string;
-}
-
-export interface Expenses {
-    expenses: Expense[];
-    totalCount: number;
+    transaction_date?: string;
+    notes?: string;
 }
 
 export interface Summary {
@@ -49,7 +44,7 @@ export interface UpdateUserRequest {
 }
 
 export interface AddExpenseRequest {
-    category: string;
+    category_id: number;
     amount: number;
     description?: string;
     date?: string;

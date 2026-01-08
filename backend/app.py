@@ -18,6 +18,8 @@ from flask_jwt_extended import (
     create_refresh_token,
     get_jwt_identity,
     jwt_required,
+    set_access_cookies,
+    set_refresh_cookies
 )
 
 
@@ -34,9 +36,18 @@ def create_app() -> Flask:
     # JWT
     app.config['SECRET_KEY'] = cfg.secret_key
     app.config["JWT_SECRET_KEY"] = cfg.jwt_secret_key
-    app.config['JWT_TOKEN_LOCATION'] = ['headers']
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
-    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
+
+    app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+
+    app.config['JWT_ACCESS_COOKIE_NAME'] = 'access_token_cookie'
+    app.config['JWT_REFRESH_COOKIE_NAME'] = 'refresh_token_cookie'
+
+    app.config['JWT_COOKIE_CSRF_PROTECT'] = False
+    app.config['JWT_COOKIE_SECURE'] = False
+    app.config['JWT_COOKIE_SAMESITE'] = 'Lax'
+
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=30)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
 
     jwt = JWTManager(app)
 
@@ -62,7 +73,8 @@ def create_app() -> Flask:
         data = request.get_json()
         lgn = data["login"]
         password = data["password"]
-        users_service.register_user(lgn, password)
+        budget = data.get("budget")
+        users_service.register_user(lgn, password, budget)
         return "", 200
 
     @app.post("/api/v1/login")
@@ -71,10 +83,12 @@ def create_app() -> Flask:
         lgn = data["login"]
         password = data["password"]
         if users_service.check_password(lgn, password):
-            response = {
-                "auth_token": create_access_token(identity=lgn),
-                "refresh_token": create_refresh_token(identity=lgn)
-            }
+            access_token = create_access_token(identity=lgn)
+            refresh_token = create_refresh_token(identity=lgn)
+
+            response = jsonify({"msg": "login successful"})
+            set_access_cookies(response, access_token)
+            set_refresh_cookies(response, refresh_token)
             return response, 200
         else:
             return "", 401
@@ -102,9 +116,14 @@ def create_app() -> Flask:
     @jwt_required()
     def add_expense():
         data = request.get_json()
-        category = data["category"]
+        print(f"[DEBUG_LOG] add_expense data: {data}")
+        category_id = data.get("category_id") or data.get("category")
+        if not category_id:
+            return jsonify({"error": "Missing category_id"}), 400
         amount = data["amount"]
-        expenses_service.add_expense(category, amount)
+        notes = data.get("description", "")
+        transaction_date = data.get("date")
+        expenses_service.add_expense(category_id, amount, notes, transaction_date)
         return jsonify({"status": "ok"}), 200
 
     @app.put("/api/v1/update_expense")
@@ -112,9 +131,9 @@ def create_app() -> Flask:
     def update_expense():
         data = request.get_json()
         expense_id = data["expense_id"]
-        category = data["category"]
+        category_id = data["category_id"]
         amount = data["amount"]
-        expenses_service.update_expense(expense_id, category, amount)
+        expenses_service.update_expense(expense_id, category_id, amount)
         return jsonify({"status": "ok"}), 200
 
     @app.delete("/api/v1/delete_expense")
