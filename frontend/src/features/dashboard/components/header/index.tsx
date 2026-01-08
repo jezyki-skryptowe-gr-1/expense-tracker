@@ -21,11 +21,11 @@ export function DashboardHeader({ onCategoriesClick, onAddExpenseClick, onEditPr
             <div>
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Dashboard</h1>
                 <div className="text-muted-foreground mt-1 min-h-[1.5rem] flex items-center">
-                    {isLoading ? (
-                        <Skeleton className="h-4 w-48" />
-                    ) : (
-                        <p>Witaj ponownie, {user || 'Użytkowniku'}! Oto podsumowanie Twoich finansów.</p>
-                    )}
+                    {/*{isLoading ? (*/}
+                    {/*    <Skeleton className="h-4 w-48" />*/}
+                    {/*) : (*/}
+                    {/*    <p>Witaj ponownie, {user || 'Użytkowniku'}! Oto podsumowanie Twoich finansów.</p>*/}
+                    {/*)}*/}
                 </div>
             </div>
             <div className="flex items-center gap-3">

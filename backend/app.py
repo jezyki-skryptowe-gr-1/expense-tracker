@@ -18,6 +18,8 @@ from flask_jwt_extended import (
     create_refresh_token,
     get_jwt_identity,
     jwt_required,
+    set_access_cookies,
+    set_refresh_cookies
 )
 
 
@@ -34,9 +36,18 @@ def create_app() -> Flask:
     # JWT
     app.config['SECRET_KEY'] = cfg.secret_key
     app.config["JWT_SECRET_KEY"] = cfg.jwt_secret_key
-    app.config['JWT_TOKEN_LOCATION'] = ['headers']
-    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=15)
-    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=7)
+
+    app.config['JWT_TOKEN_LOCATION'] = ['cookies']
+
+    app.config['JWT_ACCESS_COOKIE_NAME'] = 'access_token_cookie'
+    app.config['JWT_REFRESH_COOKIE_NAME'] = 'refresh_token_cookie'
+
+    app.config['JWT_COOKIE_CSRF_PROTECT'] = False
+    app.config['JWT_COOKIE_SECURE'] = False
+    app.config['JWT_COOKIE_SAMESITE'] = 'Lax'
+
+    app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(minutes=30)
+    app.config["JWT_REFRESH_TOKEN_EXPIRES"] = timedelta(days=30)
 
     jwt = JWTManager(app)
 
@@ -71,10 +82,12 @@ def create_app() -> Flask:
         lgn = data["login"]
         password = data["password"]
         if users_service.check_password(lgn, password):
-            response = {
-                "auth_token": create_access_token(identity=lgn),
-                "refresh_token": create_refresh_token(identity=lgn)
-            }
+            access_token = create_access_token(identity=lgn)
+            refresh_token = create_refresh_token(identity=lgn)
+
+            response = jsonify({"msg": "login successful"})
+            set_access_cookies(response, access_token)
+            set_refresh_cookies(response, refresh_token)
             return response, 200
         else:
             return "", 401
