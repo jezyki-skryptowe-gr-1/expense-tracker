@@ -2,7 +2,7 @@ from datetime import date, timedelta
 from flask_jwt_extended import get_jwt_identity
 
 from decorators import singleton
-from repository import transactions_repository, budgets_repository, users_repository
+from repository import transactions_repository, users_repository
 
 
 @singleton

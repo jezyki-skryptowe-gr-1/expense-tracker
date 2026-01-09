@@ -37,4 +37,4 @@ def setup_date(postgres_container):
 @pytest.fixture(scope="function", autouse=True)
 def clean_data(postgres_container):
     with db.connection.get_connection() as conn:
-        conn.execute("TRUNCATE TABLE users CASCADE; TRUNCATE TABLE categories CASCADE; TRUNCATE TABLE transactions CASCADE; TRUNCATE TABLE budgets CASCADE;")
+        conn.execute("TRUNCATE TABLE users CASCADE; TRUNCATE TABLE categories CASCADE; TRUNCATE TABLE transactions CASCADE;")

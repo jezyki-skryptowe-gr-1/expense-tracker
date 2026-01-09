@@ -23,11 +23,3 @@ CREATE TABLE transactions (
     transaction_date DATE NOT NULL DEFAULT CURRENT_DATE,
     notes TEXT
 );
-
-CREATE TABLE budgets (
-    budget_id SERIAL PRIMARY KEY,
-    user_id INTEGER NOT NULL REFERENCES users(user_id) ON DELETE CASCADE,
-    category_id INTEGER NOT NULL REFERENCES categories(category_id) ON DELETE CASCADE,
-    limit_amount NUMERIC(10, 2) NOT NULL
-);
-

@@ -4,11 +4,11 @@ import db.connection
 from services.summary_service import SummaryService
 
 
-def _set_user(login: str, user_id: int):
+def _set_user(login: str, user_id: int, budget: Decimal | int | float = 0):
     with db.connection.get_connection() as conn:
         conn.execute(
-            "INSERT INTO users (user_id, username, password_hash) VALUES (%s, %s, 'pw')",
-            (user_id, login),
+            "INSERT INTO users (user_id, username, password_hash, budget) VALUES (%s, %s, 'pw', %s)",
+            (user_id, login, budget),
         )
 
 
@@ -17,14 +17,6 @@ def _set_category(category_id: int, user_id: int, name: str = "cat", color: str 
         conn.execute(
             "INSERT INTO categories (category_id, user_id, name, color) VALUES (%s, %s, %s, %s)",
             (category_id, user_id, name, color),
-        )
-
-
-def _set_budget(user_id: int, category_id: int, limit_amount: Decimal):
-    with db.connection.get_connection() as conn:
-        conn.execute(
-            "INSERT INTO budgets (user_id, category_id, limit_amount) VALUES (%s, %s, %s)",
-            (user_id, category_id, limit_amount),
         )
 
 
@@ -44,11 +36,9 @@ def _set_transaction(transaction_id: int,
 
 
 def test_get_summary_returns_correct_data(monkeypatch):
-    _set_user("u1", 1)
+    _set_user("u1", 1, Decimal("700"))
     _set_category(1, 1, "Food")
     _set_category(2, 1, "Transport")
-    _set_budget(1, 1, Decimal("500"))
-    _set_budget(1, 2, Decimal("200"))
 
     # Current month transactions
     today = date.today()
@@ -72,7 +62,7 @@ def test_get_summary_returns_correct_data(monkeypatch):
 
 
 def test_get_summary_with_no_budgets(monkeypatch):
-    _set_user("u1", 1)
+    _set_user("u1", 1, Decimal("0"))
     _set_category(1, 1, "Food")
 
     today = date.today()
@@ -90,9 +80,8 @@ def test_get_summary_with_no_budgets(monkeypatch):
 
 
 def test_get_summary_with_no_expenses(monkeypatch):
-    _set_user("u1", 1)
+    _set_user("u1", 1, Decimal("500"))
     _set_category(1, 1, "Food")
-    _set_budget(1, 1, Decimal("500"))
 
     monkeypatch.setattr("services.summary_service.get_jwt_identity", lambda: "u1")
     service = SummaryService.get_singleton()
@@ -106,12 +95,10 @@ def test_get_summary_with_no_expenses(monkeypatch):
 
 
 def test_get_summary_isolates_users(monkeypatch):
-    _set_user("u1", 1)
-    _set_user("u2", 2)
+    _set_user("u1", 1, Decimal("500"))
+    _set_user("u2", 2, Decimal("1000"))
     _set_category(1, 1, "Food")
     _set_category(2, 2, "Food")
-    _set_budget(1, 1, Decimal("500"))
-    _set_budget(2, 2, Decimal("1000"))
 
     today = date.today()
     _set_transaction(1, 1, 1, Decimal("100"), today, "U1 expense")
@@ -126,9 +113,8 @@ def test_get_summary_isolates_users(monkeypatch):
 
 
 def test_get_summary_percentage_over_budget(monkeypatch):
-    _set_user("u1", 1)
+    _set_user("u1", 1, Decimal("100"))
     _set_category(1, 1, "Food")
-    _set_budget(1, 1, Decimal("100"))
 
     today = date.today()
     _set_transaction(1, 1, 1, Decimal("150"), today, "Over budget")

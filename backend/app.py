@@ -109,7 +109,7 @@ def create_app() -> Flask:
     def update_user():
         data = request.get_json()
         budget = data["budget"]
-        users_service.update_user(budget)
+        users_service.update_user_budget(budget)
         return jsonify({"status": "ok"}), 200
 
     @app.post("/api/v1/add_expense")
