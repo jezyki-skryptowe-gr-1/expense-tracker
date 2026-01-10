@@ -121,3 +121,17 @@ def test_get_expenses_list_filters_by_category(monkeypatch):
     assert categories(service.get_expenses_list()) == [4, 4, 5]
     assert categories(service.get_expenses_list(category_id=4)) == [4, 4]
     assert categories(service.get_expenses_list(category_id=5)) == [5]
+
+
+def test_get_expenses_list_filters_by_search(monkeypatch):
+    _set_user("u5", 5)
+    _set_category(6, 5, "coffee")
+    monkeypatch.setattr("services.expenses_service.get_jwt_identity", lambda: "u5")
+    service = ExpensesService.get_singleton()
+
+    service.add_expense(6, 15, "coffee beans", transaction_date=date(2026, 3, 1))
+    service.add_expense(6, 20, "groceries", transaction_date=date(2026, 3, 2))
+
+    results = service.get_expenses_list(search="coff")
+    assert len(results) == 1
+    assert results[0].notes == "coffee beans"

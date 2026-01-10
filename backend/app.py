@@ -162,13 +162,15 @@ def create_app() -> Flask:
         to_param = request.args.get("to")
         min_amount_param = request.args.get("minAmount")
         max_amount_param = request.args.get("maxAmount")
-        category_id = request.args.get("category")
+        category_id_param = request.args.get("category")
+        search_param = request.args.get("search")
 
         from_date = None
         to_date = None
         min_amount = None
         max_amount = None
         category_id = None
+        search = None
 
         if from_param:
             try:
@@ -206,12 +208,16 @@ def create_app() -> Flask:
             except ValueError:
                 return jsonify({"error": "Invalid categoryId format. Expected integer value"}), 400
 
+        if search_param:
+            search = search_param
+
         expenses_list = expenses_service.get_expenses_list(
             from_date=from_date,
             to_date=to_date,
             min_amount=min_amount,
             max_amount=max_amount,
             category_id=category_id,
+            search=search,
         )
         return jsonify(expenses_list), 200
 
