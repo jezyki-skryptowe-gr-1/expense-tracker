@@ -21,7 +21,10 @@ apiClient.interceptors.response.use(
                 await apiClient.put('/v1/refresh_token');
                 return apiClient(originalRequest);
             } catch (refreshError) {
-                router.navigate({ to: '/' });
+                const isMeRequest = originalRequest.url?.includes('/v1/me');
+                if (!isMeRequest) {
+                    router.navigate({ to: '/' });
+                }
                 return Promise.reject(refreshError);
             }
         }
