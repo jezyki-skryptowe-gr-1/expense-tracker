@@ -33,5 +33,6 @@ jobs:
 
   call-deploy:
     uses: ./.github/workflows/deploy.yaml
+    needs: build
     secrets:
         HOOK_URL: ${{ secrets.RENDER_FRONTEND_PROD_HOOK }}
