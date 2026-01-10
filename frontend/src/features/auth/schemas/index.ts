@@ -1,7 +1,6 @@
 import { z } from 'zod'
 
 export const signupSchema = z.object({
-    name: z.string().min(1, 'Imię i nazwisko jest wymagane'),
     email: z.email('Nieprawidłowy adres email'),
     password: z.string().min(8, 'Hasło musi mieć co najmniej 8 znaków'),
     confirmPassword: z.string().min(8, 'Potwierdzenie hasła jest wymagane'),

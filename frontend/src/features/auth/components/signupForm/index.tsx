@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Form } from '@/components/ui/form'
 import FormInput from '@/components/formInput'
 import { signupSchema, type SignupFormData } from '@/features/auth/schemas'
-import { Lock, Mail, User, DollarSign } from 'lucide-react'
+import { Lock, Mail, DollarSign } from 'lucide-react'
 import { Link, useRouter } from '@tanstack/react-router'
 import { useSignupMutation } from '@/features/auth/query'
 import { toast } from 'react-toastify'
@@ -17,7 +17,6 @@ const SignupForm = () => {
     const form = useForm<SignupFormData>({
         resolver: zodResolver(signupSchema),
         defaultValues: {
-            name: '',
             email: '',
             password: '',
             confirmPassword: '',
@@ -50,13 +49,6 @@ const SignupForm = () => {
             <CardContent>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-                        <FormInput<SignupFormData>
-                            name="name"
-                            label="Imię i nazwisko"
-                            placeholder="Jan Kowalski"
-                            icon={User}
-                        />
-
                         <FormInput<SignupFormData>
                             name="email"
                             label="Adres email"

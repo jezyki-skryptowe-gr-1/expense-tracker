@@ -6,14 +6,14 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import FormInput from "@/components/formInput"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {Search, X, DollarSign, Filter} from "lucide-react"
+import { X, DollarSign, Filter} from "lucide-react"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useCategoriesQuery, useExpensesQuery } from "../../query"
 import { Skeleton } from "@/components/ui/skeleton"
 import { format, startOfMonth } from "date-fns"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
 
 interface FilterFormValues {
     search: string
@@ -30,8 +30,11 @@ export function TransactionsTable() {
 
     const searchQuery = search.search || ""
     const selectedCategory = search.category || "all"
-    const dateFrom = search.from || format(startOfMonth(new Date()), 'yyyy-MM-dd')
-    const dateTo = search.to || format(new Date(), 'yyyy-MM-dd')
+    const defaultDateFrom = format(startOfMonth(new Date()), 'yyyy-MM-dd')
+    const defaultDateTo = format(new Date(), 'yyyy-MM-dd')
+
+    const dateFrom = search.from || defaultDateFrom
+    const dateTo = search.to || defaultDateTo
     const minAmount = search.minAmount
     const maxAmount = search.maxAmount
 
@@ -86,6 +89,15 @@ export function TransactionsTable() {
     }
 
     const clearFilters = () => {
+        form.reset({
+            search: "",
+            category: "all",
+            from: defaultDateFrom,
+            to: defaultDateTo,
+            minAmount: undefined,
+            maxAmount: undefined,
+        })
+
         navigate({
             to: '/dashboard',
             search: (prev: any) => ({
@@ -100,7 +112,12 @@ export function TransactionsTable() {
         })
     }
 
-    const hasActiveFilters = !!searchQuery || selectedCategory !== "all" || minAmount !== undefined || maxAmount !== undefined
+    const hasActiveFilters = !!searchQuery || 
+        selectedCategory !== "all" || 
+        minAmount !== undefined || 
+        maxAmount !== undefined ||
+        dateFrom !== defaultDateFrom ||
+        dateTo !== defaultDateTo
     const isPending = expensesLoading || expensesFetching
 
     return (
@@ -112,57 +129,17 @@ export function TransactionsTable() {
                             <CardTitle>Ostatnie Transakcje</CardTitle>
                             <CardDescription>Historia Twoich wydatków</CardDescription>
                         </div>
-                        {hasActiveFilters && (
-                            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground hover:text-foreground" disabled={isPending}>
-                                <X className="mr-2 size-4" />
-                                Wyczyść filtry
-                            </Button>
-                        )}
                     </div>
 
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(handleSearch)} className="flex flex-col gap-3">
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                <FormInput<FilterFormValues>
-                                    name="search"
-                                    placeholder="Szukaj transakcji..."
-                                    icon={Search}
-                                    disabled={isPending}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="category"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                value={field.value}
-                                                disabled={isPending}
-                                            >
-                                                <FormControl>
-                                                    <SelectTrigger className="w-full sm:w-[180px]">
-                                                        <SelectValue placeholder="Kategoria" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="all">Wszystkie</SelectItem>
-                                                    {categoriesLoading ? (
-                                                        <div className="p-2 text-xs text-muted-foreground">Ładowanie...</div>
-                                                    ) : (
-                                                        categories.map((category: any) => (
-                                                            <SelectItem key={category.category_id} value={category.name}>
-                                                                {category.name}
-                                                            </SelectItem>
-                                                        ))
-                                                    )}
-                                                </SelectContent>
-                                            </Select>
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="flex flex-row gap-3 items-center">
+                            <FormInput<FilterFormValues>
+                                name="search"
+                                label="Szukaj"
+                                placeholder="Szukaj transakcji..."
+                                disabled={isPending}
+                            />
+                            <div className="flex flex-col md:flex-row gap-3 items-start">
                                 <FormInput<FilterFormValues>
                                     name="minAmount"
                                     label="Kwota od"
@@ -179,9 +156,44 @@ export function TransactionsTable() {
                                     icon={DollarSign}
                                     disabled={isPending}
                                 />
+
+                                <div className="flex-1 md:min-w-[180px] min-w-full">
+                                    <FormField
+                                        control={form.control}
+                                        name="category"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="mb-1 font-semibold">Kategoria</FormLabel>
+                                                <Select
+                                                    onValueChange={field.onChange}
+                                                    value={field.value}
+                                                    disabled={isPending}
+                                                >
+                                                    <FormControl>
+                                                        <SelectTrigger className="w-full h-11! border-border/50 focus:ring-primary">
+                                                            <SelectValue placeholder="Kategoria" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="all">Wszystkie</SelectItem>
+                                                        {categoriesLoading ? (
+                                                            <div className="p-2 text-xs text-muted-foreground">Ładowanie...</div>
+                                                        ) : (
+                                                            categories.map((category: any) => (
+                                                                <SelectItem key={category.category_id} value={category.name}>
+                                                                    {category.name}
+                                                                </SelectItem>
+                                                            ))
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
                             </div>
 
-                            <div className="flex flex-row gap-3 items-center">
+                            <div className="flex flex-row gap-3 items-start">
                                 <FormInput<FilterFormValues>
                                     name="from"
                                     label="Od"
@@ -204,6 +216,19 @@ export function TransactionsTable() {
                                 <Filter className="mr-2 size-4" />
                                 {isPending ? 'Szukanie...' : 'Wyszukaj'}
                             </Button>
+                            
+                            {hasActiveFilters && (
+                                <Button 
+                                    type="button"
+                                    variant="outline" 
+                                    className="w-full"
+                                    onClick={clearFilters}
+                                    disabled={isPending}
+                                >
+                                    <X className="mr-2 size-4" />
+                                    Wyczyść filtry
+                                </Button>
+                            )}
                         </form>
                     </Form>
                 </div>
