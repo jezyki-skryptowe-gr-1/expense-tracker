@@ -53,8 +53,8 @@ def find_by_user(user_id, from_date=None, to_date=None, min_amount=None, max_amo
                 params.append(category_id)
 
             if search:
-                query += " AND notes LIKE %s"
-                params.append(f"%{search}%")
+                query += " AND notes ~* %s"
+                params.append(search)
 
             cur.execute(query, params)
             return [
