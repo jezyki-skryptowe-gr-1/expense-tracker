@@ -1,4 +1,4 @@
-// import { ChartsSection } from "../../components/charts";
+import { ChartsSection } from "../../components/charts";
 import { DashboardHeader } from "../../components/header";
 import { SummaryCards } from "../../components/summaryCards";
 import { TransactionsTable } from "../../components/table";
@@ -30,11 +30,18 @@ const MainDashboardView = () => {
     }
 
     return (
-        <div className="min-h-screen px-4 pb-4 md:pb-4 md:px-8 space-y-6">
-            <DashboardHeader onCategoriesClick={() => setCategoriesModalOpen(true)} onAddExpenseClick={() => setAddExpenseModalOpen(true)} onEditProfile={handleEditProfile} onLogout={handleLogout} />
-            <SummaryCards />
-            {/*<ChartsSection />*/}
-            <TransactionsTable />
+        <div className="min-h-screen relative">
+            <DashboardHeader 
+                onCategoriesClick={() => setCategoriesModalOpen(true)} 
+                onAddExpenseClick={() => setAddExpenseModalOpen(true)} 
+                onEditProfile={handleEditProfile} 
+                onLogout={handleLogout} 
+            />
+            <div className="px-4 pb-4 md:pb-4 md:px-8 space-y-6 mt-6">
+                <SummaryCards />
+                <ChartsSection />
+                <TransactionsTable />
+            </div>
             <Suspense fallback={<div className="flex justify-center items-center h-full">Ładowanie...</div>}>
                 <CategoriesListModal open={categoriesModalOpen} onOpenChange={setCategoriesModalOpen} />
                 <AddExpenseModal open={addExpenseModalOpen} onOpenChange={setAddExpenseModalOpen} />

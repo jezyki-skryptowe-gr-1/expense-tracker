@@ -30,8 +30,8 @@ export const Route = createFileRoute('/_dashboardLayout')({
 
 function DashboardLayout() {
     return (
-        <div className="min-h-screen">
-            <div>
+        <div className="min-h-screen max-w-full overflow-x-hidden">
+            <div className="max-w-full">
                 <Outlet />
             </div>
         </div>

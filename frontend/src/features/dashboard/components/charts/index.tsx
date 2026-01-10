@@ -1,17 +1,37 @@
-import { useState } from "react"
+import { useMemo } from "react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
 import { Skeleton } from "@/components/ui/skeleton"
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from "recharts"
-import { barChartData, categoryData } from "../../fakeData"
 import { useChartDataQuery } from "../../query"
 
 export function ChartsSection() {
-    const [selectedPeriod, setSelectedPeriod] = useState("month")
     const { data, isLoading, isError, error } = useChartDataQuery()
 
-    const chartData = data?.barChartData || barChartData
-    const pieData = data?.categoryData || categoryData
+    const chartData = useMemo(() => {
+        if (!data?.barChartData) return []
+        return data.barChartData.map(item => ({
+            month: item.month,
+            expenses: item.expenses.reduce((acc, exp) => acc + exp.amount, 0)
+        }))
+    }, [data])
+
+    const pieData = useMemo(() => {
+        if (!data?.categoryData || !data?.barChartData) return []
+
+        const categoryTotals: Record<string, number> = {}
+
+        data.barChartData.forEach(monthItem => {
+            monthItem.expenses.forEach(expense => {
+                categoryTotals[expense.category] = (categoryTotals[expense.category] || 0) + expense.amount
+            })
+        })
+
+        return data.categoryData.map(cat => ({
+            name: cat.name,
+            value: categoryTotals[cat.name] || 0,
+            color: cat.color
+        })).filter(cat => cat.value > 0)
+    }, [data])
 
     if (isError) {
         return (
@@ -35,24 +55,6 @@ export function ChartsSection() {
                         <div>
                             <CardTitle>Przegląd Wydatków</CardTitle>
                             <CardDescription>Historia miesięcznych wydatków</CardDescription>
-                        </div>
-                        <div className="flex gap-2">
-                            <Button
-                                variant={selectedPeriod === "week" ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => setSelectedPeriod("week")}
-                                className="text-xs"
-                            >
-                                Tydzień
-                            </Button>
-                            <Button
-                                variant={selectedPeriod === "month" ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => setSelectedPeriod("month")}
-                                className="text-xs"
-                            >
-                                Miesiąc
-                            </Button>
                         </div>
                     </div>
                 </CardHeader>

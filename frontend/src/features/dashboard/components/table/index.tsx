@@ -227,7 +227,7 @@ export function TransactionsTable() {
                                 </div>
                             </div>
 
-                            <div className="flex flex-row gap-3 items-start">
+                            <div className="flex flex-col sm:flex-row gap-3 items-start">
                                 <FormInput<FilterFormValues>
                                     name="from"
                                     label="Od"
@@ -307,7 +307,9 @@ export function TransactionsTable() {
                                                     <DollarSign className="size-4 text-muted-foreground" />
                                                 </div>
                                             </TableCell>
-                                            <TableCell className="font-medium">{transaction.notes || 'Bez opisu'}</TableCell>
+                                            <TableCell className="font-medium max-w-[150px] md:max-w-[300px] truncate" title={transaction.notes || 'Bez opisu'}>
+                                                {transaction.notes || 'Bez opisu'}
+                                            </TableCell>
                                             <TableCell className="hidden sm:table-cell">
                                                 <Badge variant="outline" className="font-normal">
                                                     {categories.find(c => c.category_id === transaction.category_id)?.name || 'Nieznana'}

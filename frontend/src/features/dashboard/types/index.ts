@@ -30,12 +30,18 @@ export interface Summary {
 export interface ChartData {
     barChartData: {
         month: string;
-        expenses: number;
+        expenses: {
+            amount: number;
+            category: string;
+            date: string;
+            description: string;
+            expense_id: number;
+        }[];
     }[];
     categoryData: {
-        name: string;
-        value: number;
+        category_id: number;
         color: string;
+        name: string;
     }[];
 }
 
