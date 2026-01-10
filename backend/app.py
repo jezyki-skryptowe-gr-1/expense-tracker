@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import os
-from datetime import timedelta
+from datetime import date, timedelta
+from decimal import Decimal, InvalidOperation
 
 from flask import Flask, jsonify, request
 from flask_cors import CORS
@@ -147,7 +148,52 @@ def create_app() -> Flask:
     @app.get("/api/v1/expenses")
     @jwt_required()
     def expenses():
-        expenses_list = expenses_service.get_expenses_list()
+        from_param = request.args.get("from")
+        to_param = request.args.get("to")
+        min_amount_param = request.args.get("minAmount")
+        max_amount_param = request.args.get("maxAmount")
+
+        from_date = None
+        to_date = None
+        min_amount = None
+        max_amount = None
+
+        if from_param:
+            try:
+                from_date = date.fromisoformat(from_param)
+            except ValueError:
+                return jsonify({"error": "Invalid from date format. Expected YYYY-MM-DD"}), 400
+
+        if to_param:
+            try:
+                to_date = date.fromisoformat(to_param)
+            except ValueError:
+                return jsonify({"error": "Invalid to date format. Expected YYYY-MM-DD"}), 400
+
+        if from_date and to_date and from_date > to_date:
+            return jsonify({"error": "'from' cannot be after 'to'"}), 400
+
+        if min_amount_param:
+            try:
+                min_amount = Decimal(min_amount_param)
+            except (InvalidOperation, ValueError):
+                return jsonify({"error": "Invalid minAmount format. Expected numeric value"}), 400
+
+        if max_amount_param:
+            try:
+                max_amount = Decimal(max_amount_param)
+            except (InvalidOperation, ValueError):
+                return jsonify({"error": "Invalid maxAmount format. Expected numeric value"}), 400
+
+        if min_amount is not None and max_amount is not None and min_amount > max_amount:
+            return jsonify({"error": "minAmount cannot be greater than maxAmount"}), 400
+
+        expenses_list = expenses_service.get_expenses_list(
+            from_date=from_date,
+            to_date=to_date,
+            min_amount=min_amount,
+            max_amount=max_amount,
+        )
         return jsonify(expenses_list), 200
 
     @app.post("/api/v1/add_category")

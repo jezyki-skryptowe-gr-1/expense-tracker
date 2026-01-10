@@ -1,3 +1,6 @@
+from datetime import date
+from decimal import Decimal
+
 import db.connection
 import repository.transactions_repository as transactions_repository
 from services.expenses_service import ExpensesService
@@ -77,3 +80,25 @@ def test_update_expense_blocks_other_user(monkeypatch):
     assert txn is not None
     assert float(txn.amount) == 25.0
     assert txn.notes == "original"
+
+
+def test_get_expenses_list_filters_by_amount(monkeypatch):
+    _set_user("u3", 3)
+    _set_category(3, 3)
+    monkeypatch.setattr("services.expenses_service.get_jwt_identity", lambda: "u3")
+    service = ExpensesService.get_singleton()
+
+    service.add_expense(3, 10, transaction_date=date(2026, 1, 1))
+    service.add_expense(3, 20, transaction_date=date(2026, 1, 2))
+    service.add_expense(3, 30, transaction_date=date(2026, 1, 3))
+
+    def amounts(expenses):
+        return sorted(float(t.amount) for t in expenses)
+
+    assert amounts(service.get_expenses_list()) == [10.0, 20.0, 30.0]
+    assert amounts(service.get_expenses_list(min_amount=Decimal("20"))) == [20.0, 30.0]
+    assert amounts(service.get_expenses_list(max_amount=Decimal("20"))) == [10.0, 20.0]
+    assert amounts(service.get_expenses_list(min_amount=Decimal("15"), max_amount=Decimal("25"))) == [20.0]
+    assert amounts(service.get_expenses_list(from_date=date(2026, 1, 2))) == [20.0, 30.0]
+    assert amounts(service.get_expenses_list(to_date=date(2026, 1, 2))) == [10.0, 20.0]
+    assert amounts(service.get_expenses_list(from_date=date(2026, 1, 2), to_date=date(2026, 1, 2))) == [20.0]

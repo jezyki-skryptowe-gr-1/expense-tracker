@@ -61,8 +61,14 @@ class ExpensesService:
 
         transactions_repository.delete_transaction(expense_id)
 
-    def get_expenses_list(self):
+    def get_expenses_list(self, from_date=None, to_date=None, min_amount=None, max_amount=None):
         user = self._current_user()
         if user is None:
             return []
-        return transactions_repository.find_by_user(user.user_id)
+        return transactions_repository.find_by_user(
+            user.user_id,
+            from_date=from_date,
+            to_date=to_date,
+            min_amount=min_amount,
+            max_amount=max_amount,
+        )
