@@ -20,7 +20,9 @@ jobs:
           echo "REAL_PG_DB=${{ secrets.POSTGRES_DB }}" >> $GITHUB_ENV
           echo "REAL_PG_USER=${{ secrets.POSTGRES_USER }}" >> $GITHUB_ENV
           echo "REAL_PG_PASS=${{ secrets.POSTGRES_PASSWORD }}" >> $GITHUB_ENV
-
+          echo "PGPASSWORD=${{ secrets.POSTGRES_PASSWORD }}" >> $GITHUB_ENV
+          echo "PGSSLMODE=require" >> $GITHUB_ENV
+          
       - name: Make script executable
         run: chmod +x tools/db/init-sql.sh
 
