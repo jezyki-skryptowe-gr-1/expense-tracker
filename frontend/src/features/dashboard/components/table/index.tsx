@@ -6,14 +6,18 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import FormInput from "@/components/formInput"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import { X, DollarSign, Filter} from "lucide-react"
+import { X, DollarSign, Filter, Trash2, Pencil } from "lucide-react"
 import { useNavigate, useSearch } from "@tanstack/react-router"
-import { useCategoriesQuery, useExpensesQuery } from "../../query"
+import { useCategoriesQuery, useExpensesQuery, useDeleteExpenseMutation } from "../../query"
 import { Skeleton } from "@/components/ui/skeleton"
 import { format, startOfMonth } from "date-fns"
-import { useEffect } from "react"
+import { useEffect, useState } from "react"
 import { useForm } from "react-hook-form"
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
+import { toast } from "react-toastify"
+import { DeleteConfirmationModal } from "@/components/deleteConfirmationModal"
+import { EditExpenseModal } from "../editExpenseModal"
+import type { Expense } from "../../types"
 
 interface FilterFormValues {
     search: string
@@ -27,6 +31,11 @@ interface FilterFormValues {
 export function TransactionsTable() {
     const search = useSearch({ from: '/_dashboardLayout/dashboard' })
     const navigate = useNavigate()
+    const deleteExpenseMutation = useDeleteExpenseMutation()
+    const [deleteModalOpen, setDeleteModalOpen] = useState(false)
+    const [editModalOpen, setEditModalOpen] = useState(false)
+    const [expenseToDelete, setExpenseToDelete] = useState<number | null>(null)
+    const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null)
 
     const searchQuery = search.search || ""
     const selectedCategory = search.category || "all"
@@ -119,6 +128,36 @@ export function TransactionsTable() {
         dateFrom !== defaultDateFrom ||
         dateTo !== defaultDateTo
     const isPending = expensesLoading || expensesFetching
+
+    const handleDelete = (id: number) => {
+        setExpenseToDelete(id)
+        setDeleteModalOpen(true)
+    }
+
+    const handleEdit = (expense: Expense) => {
+        setExpenseToEdit(expense)
+        setEditModalOpen(true)
+    }
+
+    const confirmDelete = () => {
+        console.log("[DEBUG_LOG] confirmDelete called, expenseToDelete:", expenseToDelete)
+        if (expenseToDelete !== null) {
+            deleteExpenseMutation.mutate(expenseToDelete, {
+                onSuccess: () => {
+                    console.log("[DEBUG_LOG] delete success")
+                    toast.success('Wydatek został usunięty')
+                    setExpenseToDelete(null)
+                    setDeleteModalOpen(false)
+                },
+                onError: (error: any) => {
+                    console.error("[DEBUG_LOG] delete error:", error)
+                    toast.error(error.response?.data?.message || 'Nie udało się usunąć wydatku')
+                }
+            })
+        } else {
+            console.warn("[DEBUG_LOG] confirmDelete called but expenseToDelete is null")
+        }
+    }
 
     return (
         <Card className="border-border/50">
@@ -242,21 +281,22 @@ export function TransactionsTable() {
                             <TableHead className="hidden sm:table-cell">Kategoria</TableHead>
                             <TableHead className="hidden md:table-cell">Data</TableHead>
                             <TableHead className="text-right">Kwota</TableHead>
+                            <TableHead className="w-[50px]"></TableHead>
                         </TableRow>
                     </TableHeader>
                     {expensesData !== undefined && (
                         <TableBody>
-                            {isPending && expensesData.length === 0 ? (
+                            {isPending && (expensesData === undefined || expensesData.length === 0) ? (
                                 [1, 2, 3, 4, 5].map((i) => (
                                     <TableRow key={i}>
-                                        <TableCell colSpan={5}>
+                                        <TableCell colSpan={6}>
                                             <Skeleton className="h-12 w-full" />
                                         </TableCell>
                                     </TableRow>
                                 ))
-                            ) : expensesData.length === 0 ? (
+                            ) : expensesData === undefined || expensesData.length === 0 ? (
                                 <TableRow>
-                                    <TableCell colSpan={5} className="text-center text-muted-foreground py-12">
+                                    <TableCell colSpan={6} className="text-center text-muted-foreground py-12">
                                         <div className="flex flex-col items-center gap-1">
                                             <span className="font-semibold">Brak wyników</span>
                                             <span className="text-sm">Zmień filtry, aby zobaczyć transakcje.</span>
@@ -266,7 +306,7 @@ export function TransactionsTable() {
                             ) : (
                                 expensesData.map((transaction) => {
                                     return (
-                                        <TableRow key={transaction.expense_id} className={isPending ? "opacity-50" : ""}>
+                                        <TableRow key={transaction.transaction_id} className={isPending ? "opacity-50" : ""}>
                                             <TableCell>
                                                 <div className="p-2 rounded-lg w-fit bg-card">
                                                     <DollarSign className="size-4 text-muted-foreground" />
@@ -284,6 +324,28 @@ export function TransactionsTable() {
                                             <TableCell className="text-right font-semibold whitespace-nowrap">
                                                 {transaction.amount} PLN
                                             </TableCell>
+                                            <TableCell>
+                                                <div className="flex items-center gap-1">
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="size-8 text-muted-foreground hover:text-primary hover:bg-primary/10"
+                                                        onClick={() => handleEdit(transaction)}
+                                                        disabled={isPending}
+                                                    >
+                                                        <Pencil className="size-4" />
+                                                    </Button>
+                                                    <Button
+                                                        variant="ghost"
+                                                        size="icon"
+                                                        className="size-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                                                        onClick={() => handleDelete(transaction.transaction_id)}
+                                                        disabled={deleteExpenseMutation.isPending}
+                                                    >
+                                                        <Trash2 className="size-4" />
+                                                    </Button>
+                                                </div>
+                                            </TableCell>
                                         </TableRow>
                                     )
                                 })
@@ -293,6 +355,19 @@ export function TransactionsTable() {
                 </Table>
 
             </CardContent>
+            <DeleteConfirmationModal
+                open={deleteModalOpen}
+                onOpenChange={setDeleteModalOpen}
+                title="Usuń wydatek"
+                description="Czy na pewno chcesz usunąć ten wydatek?"
+                onConfirm={confirmDelete}
+                isLoading={deleteExpenseMutation.isPending}
+            />
+            <EditExpenseModal
+                open={editModalOpen}
+                onOpenChange={setEditModalOpen}
+                expense={expenseToEdit}
+            />
         </Card>
     )
 }

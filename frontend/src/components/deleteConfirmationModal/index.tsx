@@ -15,6 +15,7 @@ interface DeleteConfirmationModalProps {
     title: string
     description: string
     onConfirm: () => void
+    isLoading?: boolean
 }
 
 export function DeleteConfirmationModal({
@@ -23,11 +24,13 @@ export function DeleteConfirmationModal({
     title,
     description,
     onConfirm,
+    isLoading = false,
 }: DeleteConfirmationModalProps) {
-    const handleConfirm = () => {
-        console.log("[v0] Delete confirmed")
+    const handleConfirm = (e: React.MouseEvent) => {
+        e.preventDefault()
+        e.stopPropagation()
+        console.log("[DEBUG_LOG] DeleteConfirmationModal: handleConfirm called")
         onConfirm()
-        onOpenChange(false)
     }
 
     return (
@@ -44,11 +47,11 @@ export function DeleteConfirmationModal({
                     <p className="text-sm text-muted-foreground">Ta akcja jest nieodwracalna. Czy na pewno chcesz kontynuować?</p>
                 </div>
                 <DialogFooter>
-                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
+                    <Button type="button" variant="outline" onClick={() => onOpenChange(false)} disabled={isLoading}>
                         Anuluj
                     </Button>
-                    <Button type="button" variant="destructive" onClick={handleConfirm}>
-                        Usuń
+                    <Button type="button" variant="destructive" onClick={handleConfirm} disabled={isLoading}>
+                        {isLoading ? "Usuwanie..." : "Usuń"}
                     </Button>
                 </DialogFooter>
             </DialogContent>

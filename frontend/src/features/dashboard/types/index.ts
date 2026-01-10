@@ -13,7 +13,7 @@ export interface Categories {
 }
 
 export interface Expense {
-    expense_id: number;
+    transaction_id: number;
     category_id: number;
     amount: number;
     transaction_date?: string;
@@ -51,7 +51,7 @@ export interface AddExpenseRequest {
 }
 
 export interface UpdateExpenseRequest extends AddExpenseRequest {
-    expense_id: number;
+    transaction_id: number;
 }
 
 export interface AddCategoryRequest {

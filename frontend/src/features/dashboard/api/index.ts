@@ -29,12 +29,12 @@ export const dashboardApi = {
     },
 
     updateExpense: async (data: UpdateExpenseRequest): Promise<Base> => {
-        const response = await apiClient.put<Base>('/v1/update_expense', data);
+        const response = await apiClient.put<Base>('/v1/update_expense', { ...data, expense_id: data.transaction_id });
         return response.data;
     },
 
-    deleteExpense: async (expense_id: number): Promise<Base> => {
-        const response = await apiClient.delete<Base>('/v1/delete_expense', { data: { expense_id } });
+    deleteExpense: async (transaction_id: number): Promise<Base> => {
+        const response = await apiClient.delete<Base>('/v1/delete_expense', { data: { expense_id: transaction_id } });
         return response.data;
     },
 
