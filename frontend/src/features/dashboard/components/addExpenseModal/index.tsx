@@ -82,13 +82,13 @@ export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
                                 placeholder="0.00"
                                 icon={DollarSign}
                             />
-                            <div className="grid grid-cols-2 gap-4">
-                                <FormInput<AddExpenseFormData>
-                                    name="description"
-                                    label="Opis"
-                                    placeholder="Na co wydałeś pieniądze?"
-                                    icon={FileText}
-                                />
+                            <FormInput<AddExpenseFormData>
+                                name="description"
+                                label="Opis"
+                                placeholder="Na co wydałeś pieniądze?"
+                                icon={FileText}
+                            />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <FormField
                                     control={form.control}
                                     name="category"
@@ -129,47 +129,47 @@ export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
                                         </FormItem>
                                     )}
                                 />
+                                <FormField
+                                    control={form.control}
+                                    name="date"
+                                    render={({ field }) => (
+                                        <FormItem className="flex flex-col">
+                                            <FormLabel className="flex items-center gap-2">
+                                                <CalendarIcon className="size-4" />
+                                                Data
+                                            </FormLabel>
+                                            <Popover>
+                                                <PopoverTrigger asChild>
+                                                    <FormControl>
+                                                        <Button
+                                                            variant="outline"
+                                                            className={cn("w-full pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
+                                                        >
+                                                            {field.value ? (
+                                                                format(field.value, "PPP", { locale: pl })
+                                                            ) : (
+                                                                <span>Wybierz datę</span>
+                                                            )}
+                                                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                                                        </Button>
+                                                    </FormControl>
+                                                </PopoverTrigger>
+                                                <PopoverContent className="w-auto p-0" align="start">
+                                                    <Calendar
+                                                        mode="single"
+                                                        selected={field.value}
+                                                        onSelect={field.onChange}
+                                                        disabled={(date) =>
+                                                            date > new Date() || date < new Date("1900-01-01")
+                                                        }
+                                                    />
+                                                </PopoverContent>
+                                            </Popover>
+                                            <FormMessage />
+                                        </FormItem>
+                                    )}
+                                />
                             </div>
-                            <FormField
-                                control={form.control}
-                                name="date"
-                                render={({ field }) => (
-                                    <FormItem className="flex flex-col">
-                                        <FormLabel className="flex items-center gap-2">
-                                            <CalendarIcon className="size-4" />
-                                            Data
-                                        </FormLabel>
-                                        <Popover>
-                                            <PopoverTrigger asChild>
-                                                <FormControl>
-                                                    <Button
-                                                        variant="outline"
-                                                        className={cn("w-60 pl-3 text-left font-normal", !field.value && "text-muted-foreground")}
-                                                    >
-                                                        {field.value ? (
-                                                            format(field.value, "PPP", { locale: pl })
-                                                        ) : (
-                                                            <span>Wybierz datę</span>
-                                                        )}
-                                                        <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                                                    </Button>
-                                                </FormControl>
-                                            </PopoverTrigger>
-                                            <PopoverContent className="w-auto p-0" align="start">
-                                                <Calendar
-                                                    mode="single"
-                                                    selected={field.value}
-                                                    onSelect={field.onChange}
-                                                    disabled={(date) =>
-                                                        date > new Date() || date < new Date("1900-01-01")
-                                                    }
-                                                />
-                                            </PopoverContent>
-                                        </Popover>
-                                        <FormMessage />
-                                    </FormItem>
-                                )}
-                            />
                         </div>
                         <DialogFooter>
                             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>

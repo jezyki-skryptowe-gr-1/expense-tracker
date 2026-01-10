@@ -30,8 +30,11 @@ export function TransactionsTable() {
 
     const searchQuery = search.search || ""
     const selectedCategory = search.category || "all"
-    const dateFrom = search.from || format(startOfMonth(new Date()), 'yyyy-MM-dd')
-    const dateTo = search.to || format(new Date(), 'yyyy-MM-dd')
+    const defaultDateFrom = format(startOfMonth(new Date()), 'yyyy-MM-dd')
+    const defaultDateTo = format(new Date(), 'yyyy-MM-dd')
+
+    const dateFrom = search.from || defaultDateFrom
+    const dateTo = search.to || defaultDateTo
     const minAmount = search.minAmount
     const maxAmount = search.maxAmount
 
@@ -86,6 +89,15 @@ export function TransactionsTable() {
     }
 
     const clearFilters = () => {
+        form.reset({
+            search: "",
+            category: "all",
+            from: defaultDateFrom,
+            to: defaultDateTo,
+            minAmount: undefined,
+            maxAmount: undefined,
+        })
+
         navigate({
             to: '/dashboard',
             search: (prev: any) => ({
@@ -100,7 +112,12 @@ export function TransactionsTable() {
         })
     }
 
-    const hasActiveFilters = !!searchQuery || selectedCategory !== "all" || minAmount !== undefined || maxAmount !== undefined
+    const hasActiveFilters = !!searchQuery || 
+        selectedCategory !== "all" || 
+        minAmount !== undefined || 
+        maxAmount !== undefined ||
+        dateFrom !== defaultDateFrom ||
+        dateTo !== defaultDateTo
     const isPending = expensesLoading || expensesFetching
 
     return (
@@ -112,16 +129,16 @@ export function TransactionsTable() {
                             <CardTitle>Ostatnie Transakcje</CardTitle>
                             <CardDescription>Historia Twoich wydatków</CardDescription>
                         </div>
-                        {hasActiveFilters && (
-                            <Button variant="ghost" size="sm" onClick={clearFilters} className="text-muted-foreground hover:text-foreground" disabled={isPending}>
-                                <X className="mr-2 size-4" />
-                                Wyczyść filtry
-                            </Button>
-                        )}
                     </div>
 
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(handleSearch)} className="flex flex-col gap-3">
+                            <FormInput<FilterFormValues>
+                                name="search"
+                                label="Szukaj"
+                                placeholder="Szukaj transakcji..."
+                                disabled={isPending}
+                            />
                             <div className="flex flex-col md:flex-row gap-3 items-start">
                                 <FormInput<FilterFormValues>
                                     name="minAmount"
@@ -199,6 +216,19 @@ export function TransactionsTable() {
                                 <Filter className="mr-2 size-4" />
                                 {isPending ? 'Szukanie...' : 'Wyszukaj'}
                             </Button>
+                            
+                            {hasActiveFilters && (
+                                <Button 
+                                    type="button"
+                                    variant="outline" 
+                                    className="w-full"
+                                    onClick={clearFilters}
+                                    disabled={isPending}
+                                >
+                                    <X className="mr-2 size-4" />
+                                    Wyczyść filtry
+                                </Button>
+                            )}
                         </form>
                     </Form>
                 </div>

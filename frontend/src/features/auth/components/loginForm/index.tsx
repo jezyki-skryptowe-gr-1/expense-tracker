@@ -46,7 +46,7 @@ const LoginForm = () => {
                 } catch (error) {
                     console.error('Failed to fetch user data', error);
                 }
-                router.navigate({ to: '/dashboard' })
+                router.navigate({ to: '/dashboard', viewTransition: true})
             },
             onError: (error: any) => {
                 toast.error(error.response?.data?.message || 'Błąd logowania')
