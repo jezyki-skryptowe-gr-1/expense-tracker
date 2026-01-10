@@ -5,7 +5,7 @@ import { dashboardApi } from '@/features/dashboard/api'
 
 const dashboardSearchSchema = z.object({
     search: z.string().optional(),
-    category: z.string().optional(),
+    category: z.coerce.number().optional(),
     from: z.string().optional(),
     to: z.string().optional(),
     minAmount: z.number().optional(),

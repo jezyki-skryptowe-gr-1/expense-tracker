@@ -38,7 +38,7 @@ export function TransactionsTable() {
     const [expenseToEdit, setExpenseToEdit] = useState<Expense | null>(null)
 
     const searchQuery = search.search || ""
-    const selectedCategory = search.category || "all"
+    const selectedCategory = search.category ? search.category.toString() : "all"
     const defaultDateFrom = format(startOfMonth(new Date()), 'yyyy-MM-dd')
     const defaultDateTo = format(new Date(), 'yyyy-MM-dd')
 
@@ -71,7 +71,7 @@ export function TransactionsTable() {
 
     const { data: expensesData, isLoading: expensesLoading, isFetching: expensesFetching } = useExpensesQuery({
         search: searchQuery,
-        category: selectedCategory === "all" ? undefined : selectedCategory,
+        category: search.category,
         from: dateFrom,
         to: dateTo,
         minAmount,
@@ -88,7 +88,7 @@ export function TransactionsTable() {
             search: (prev: any) => ({
                 ...prev,
                 search: data.search === "" ? undefined : data.search,
-                category: data.category === "all" ? undefined : data.category,
+                category: data.category === "all" ? undefined : Number(data.category),
                 from: data.from,
                 to: data.to,
                 minAmount: data.minAmount === undefined || data.minAmount === ("" as any) ? undefined : Number(data.minAmount),
@@ -219,7 +219,7 @@ export function TransactionsTable() {
                                                             <div className="p-2 text-xs text-muted-foreground">Ładowanie...</div>
                                                         ) : (
                                                             categories.map((category: any) => (
-                                                                <SelectItem key={category.category_id} value={category.name}>
+                                                                <SelectItem key={category.category_id} value={category.category_id.toString()}>
                                                                     {category.name}
                                                                 </SelectItem>
                                                             ))

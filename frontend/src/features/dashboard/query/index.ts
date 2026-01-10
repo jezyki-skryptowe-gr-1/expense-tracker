@@ -24,7 +24,7 @@ export const useSummaryQuery = () => {
 
 export const useExpensesQuery = (params: { 
     search?: string; 
-    category?: string;
+    category?: string | number;
     from?: string;
     to?: string;
     minAmount?: number;
