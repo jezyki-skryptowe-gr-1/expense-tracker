@@ -7,7 +7,7 @@ export const Route = createFileRoute('/_unauthorizedLayout/signup')({
 
 function Signup() {
     return (
-        <div className="text-center flex items-center justify-center w-full min-h-screen">
+        <div className="text-center flex items-center justify-center w-full min-h-screen px-2">
             <SignupForm />
         </div>
     )

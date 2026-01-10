@@ -6,10 +6,12 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Tag, Plus, Loader2 } from 'lucide-react'
+import { Tag, Plus, Loader2, Edit2 } from 'lucide-react'
 import { useState } from "react"
 import { AddCategoryModal } from "../addCategoryModal"
+import { EditCategoryModal } from "../editCategoryModal"
 import { useCategoriesQuery } from "../../query"
+import type { Category } from "../../types"
 
 interface CategoriesListModalProps {
     open: boolean
@@ -19,6 +21,13 @@ interface CategoriesListModalProps {
 export function CategoriesListModal({ open, onOpenChange }: CategoriesListModalProps) {
     const { data, isLoading } = useCategoriesQuery()
     const [addModalOpen, setAddModalOpen] = useState(false)
+    const [editModalOpen, setEditModalOpen] = useState(false)
+    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
+
+    const handleEdit = (category: Category) => {
+        setSelectedCategory(category)
+        setEditModalOpen(true)
+    }
 
     return (
         <>
@@ -60,6 +69,16 @@ export function CategoriesListModal({ open, onOpenChange }: CategoriesListModalP
                                                     <p className="font-medium">{category.name}</p>
                                                 </div>
                                             </div>
+                                            <div className="flex items-center gap-2">
+                                                <Button
+                                                    variant="ghost"
+                                                    size="icon"
+                                                    className="size-8"
+                                                    onClick={() => handleEdit(category)}
+                                                >
+                                                    <Edit2 className="size-4" />
+                                                </Button>
+                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -76,6 +95,12 @@ export function CategoriesListModal({ open, onOpenChange }: CategoriesListModalP
             <AddCategoryModal
                 open={addModalOpen}
                 onOpenChange={setAddModalOpen}
+            />
+
+            <EditCategoryModal
+                open={editModalOpen}
+                onOpenChange={setEditModalOpen}
+                category={selectedCategory}
             />
         </>
     )

@@ -20,20 +20,22 @@ import { cn } from "@/lib/utils"
 import { format } from "date-fns"
 import { pl } from "date-fns/locale"
 import FormInput from '@/components/formInput'
-import { DollarSign, CalendarIcon, FileText } from 'lucide-react'
+import { Pencil, CalendarIcon, FileText, DollarSign, Loader2 } from 'lucide-react'
 import { addExpenseSchema, type AddExpenseFormData } from '../../schemas'
-import { useAddExpenseMutation, useCategoriesQuery } from '../../query'
+import { useUpdateExpenseMutation, useCategoriesQuery } from '../../query'
 import { toast } from 'react-toastify'
-import { Loader2 } from 'lucide-react'
+import type { Expense } from '../../types'
 
-interface AddExpenseModalProps {
+interface EditExpenseModalProps {
     open: boolean
     onOpenChange: (open: boolean) => void
+    expense: Expense | null
 }
 
-export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
+export function EditExpenseModal({ open, onOpenChange, expense }: EditExpenseModalProps) {
     const { data: categoriesData, isLoading: isLoadingCategories } = useCategoriesQuery()
-    const addExpenseMutation = useAddExpenseMutation()
+    const updateExpenseMutation = useUpdateExpenseMutation()
+    
     const form = useForm<AddExpenseFormData>({
         resolver: zodResolver(addExpenseSchema),
         defaultValues: {
@@ -45,30 +47,32 @@ export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
     })
 
     useEffect(() => {
-        if (open) {
+        if (open && expense) {
             form.reset({
-                description: '',
-                amount: '',
-                category: '',
-                date: new Date()
+                description: expense.notes || '',
+                amount: expense.amount.toString(),
+                category: expense.category_id.toString(),
+                date: expense.transaction_date ? new Date(expense.transaction_date) : new Date()
             })
         }
-    }, [open, form])
+    }, [open, expense, form])
 
     const onSubmit = (data: AddExpenseFormData) => {
-        addExpenseMutation.mutate({
+        if (!expense) return
+
+        updateExpenseMutation.mutate({
+            transaction_id: expense.transaction_id,
             amount: Number(data.amount),
             category_id: Number(data.category),
             description: data.description,
             date: format(data.date, 'yyyy-MM-dd')
         }, {
             onSuccess: () => {
-                toast.success('Wydatek został dodany')
-                form.reset()
+                toast.success('Wydatek został zaktualizowany')
                 onOpenChange(false)
             },
             onError: (error: any) => {
-                toast.error(error.response?.data?.message || 'Nie udało się dodać wydatku')
+                toast.error(error.response?.data?.message || 'Nie udało się zaktualizować wydatku')
             }
         })
     }
@@ -78,10 +82,10 @@ export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
-                        <DollarSign className="size-5" />
-                        Dodaj Wydatek
+                        <Pencil className="size-5" />
+                        Edytuj Wydatek
                     </DialogTitle>
-                    <DialogDescription>Wprowadź szczegóły swojego wydatku</DialogDescription>
+                    <DialogDescription>Zmień szczegóły swojego wydatku</DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -189,8 +193,8 @@ export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
                             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                                 Anuluj
                             </Button>
-                            <Button type="submit" disabled={addExpenseMutation.isPending}>
-                                {addExpenseMutation.isPending ? 'Dodawanie...' : 'Dodaj wydatek'}
+                            <Button type="submit" disabled={updateExpenseMutation.isPending}>
+                                {updateExpenseMutation.isPending ? 'Zapisywanie...' : 'Zapisz zmiany'}
                             </Button>
                         </DialogFooter>
                     </form>

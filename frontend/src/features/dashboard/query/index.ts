@@ -24,7 +24,7 @@ export const useSummaryQuery = () => {
 
 export const useExpensesQuery = (params: { 
     search?: string; 
-    category?: string;
+    category?: string | number;
     from?: string;
     to?: string;
     minAmount?: number;
@@ -85,7 +85,7 @@ export const useDeleteExpenseMutation = () => {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: (expense_id: number) => dashboardApi.deleteExpense(expense_id),
+        mutationFn: (transaction_id: number) => dashboardApi.deleteExpense(transaction_id),
         onSuccess: () => {
             queryClient.invalidateQueries({ queryKey: ['expenses'] });
             queryClient.invalidateQueries({ queryKey: ['chartData'] });

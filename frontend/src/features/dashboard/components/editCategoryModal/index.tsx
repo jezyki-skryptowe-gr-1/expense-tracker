@@ -15,27 +15,20 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import FormInput from '@/components/formInput'
 import { Tag, Palette } from 'lucide-react'
 import { addCategorySchema, type AddCategoryFormData } from '../../schemas'
-import { useAddCategoryMutation } from '../../query'
+import { useUpdateCategoryMutation } from '../../query'
 import { toast } from 'react-toastify'
+import { useEffect } from 'react'
+import type { Category } from '../../types'
+import {CATEGORY_COLORS} from "@/features/dashboard/components/addCategoryModal";
 
-interface AddCategoryModalProps {
+interface EditCategoryModalProps {
     open: boolean
     onOpenChange: (open: boolean) => void
+    category: Category | null
 }
 
-export const CATEGORY_COLORS = [
-    { name: "Czerwony", value: "#ef4444" },
-    { name: "Pomarańczowy", value: "#f97316" },
-    { name: "Żółty", value: "#eab308" },
-    { name: "Zielony", value: "#22c55e" },
-    { name: "Niebieski", value: "#3b82f6" },
-    { name: "Fioletowy", value: "#a855f7" },
-    { name: "Różowy", value: "#ec4899" },
-    { name: "Szary", value: "#6b7280" },
-]
-
-export function AddCategoryModal({ open, onOpenChange }: AddCategoryModalProps) {
-    const addCategoryMutation = useAddCategoryMutation()
+export function EditCategoryModal({ open, onOpenChange, category }: EditCategoryModalProps) {
+    const updateCategoryMutation = useUpdateCategoryMutation()
     const form = useForm<AddCategoryFormData>({
         resolver: zodResolver(addCategorySchema),
         defaultValues: {
@@ -44,18 +37,29 @@ export function AddCategoryModal({ open, onOpenChange }: AddCategoryModalProps) 
         }
     })
 
+    useEffect(() => {
+        if (category) {
+            form.reset({
+                name: category.name,
+                color: category.color || CATEGORY_COLORS[0].value
+            })
+        }
+    }, [category, form])
+
     const onSubmit = (data: AddCategoryFormData) => {
-        addCategoryMutation.mutate({
+        if (!category) return
+
+        updateCategoryMutation.mutate({
+            category_id: category.category_id,
             category: data.name,
             color: data.color
         }, {
             onSuccess: () => {
-                toast.success('Kategoria została dodana')
-                form.reset()
+                toast.success('Kategoria została zaktualizowana')
                 onOpenChange(false)
             },
             onError: (error: any) => {
-                toast.error(error.response?.data?.message || 'Nie udało się dodać kategorii')
+                toast.error(error.response?.data?.message || 'Nie udało się zaktualizować kategorii')
             }
         })
     }
@@ -66,9 +70,9 @@ export function AddCategoryModal({ open, onOpenChange }: AddCategoryModalProps) 
                 <DialogHeader>
                     <DialogTitle className="flex items-center gap-2">
                         <Tag className="size-5" />
-                        Dodaj Kategorię
+                        Edytuj Kategorię
                     </DialogTitle>
-                    <DialogDescription>Utwórz nową kategorię wydatków. Nadaj jej nazwę i wybierz kolor.</DialogDescription>
+                    <DialogDescription>Zmień nazwę lub kolor kategorii.</DialogDescription>
                 </DialogHeader>
                 <Form {...form}>
                     <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -113,8 +117,8 @@ export function AddCategoryModal({ open, onOpenChange }: AddCategoryModalProps) 
                             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
                                 Anuluj
                             </Button>
-                            <Button type="submit" disabled={addCategoryMutation.isPending}>
-                                {addCategoryMutation.isPending ? 'Dodawanie...' : 'Dodaj kategorię'}
+                            <Button type="submit" disabled={updateCategoryMutation.isPending}>
+                                {updateCategoryMutation.isPending ? 'Zapisywanie...' : 'Zapisz zmiany'}
                             </Button>
                         </DialogFooter>
                     </form>

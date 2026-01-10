@@ -13,7 +13,7 @@ export interface Categories {
 }
 
 export interface Expense {
-    expense_id: number;
+    transaction_id: number;
     category_id: number;
     amount: number;
     transaction_date?: string;
@@ -30,12 +30,18 @@ export interface Summary {
 export interface ChartData {
     barChartData: {
         month: string;
-        expenses: number;
+        expenses: {
+            amount: number;
+            category: string;
+            date: string;
+            description: string;
+            expense_id: number;
+        }[];
     }[];
     categoryData: {
-        name: string;
-        value: number;
+        category_id: number;
         color: string;
+        name: string;
     }[];
 }
 
@@ -51,7 +57,7 @@ export interface AddExpenseRequest {
 }
 
 export interface UpdateExpenseRequest extends AddExpenseRequest {
-    expense_id: number;
+    transaction_id: number;
 }
 
 export interface AddCategoryRequest {
@@ -62,4 +68,5 @@ export interface AddCategoryRequest {
 export interface UpdateCategoryRequest {
     category_id: number;
     category: string;
+    color?: string;
 }

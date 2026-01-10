@@ -5,7 +5,7 @@ import { dashboardApi } from '@/features/dashboard/api'
 
 const dashboardSearchSchema = z.object({
     search: z.string().optional(),
-    category: z.string().optional(),
+    category: z.coerce.number().optional(),
     from: z.string().optional(),
     to: z.string().optional(),
     minAmount: z.number().optional(),
@@ -25,7 +25,7 @@ export const Route = createFileRoute('/_dashboardLayout/dashboard')({
     loader: async ({ context: { queryClient }, deps }) => {
         const expensesParams = {
             search: deps.search,
-            category: deps.category === 'all' ? undefined : deps.category,
+            category: deps.category,
             from: deps.from,
             to: deps.to,
             minAmount: deps.minAmount,
