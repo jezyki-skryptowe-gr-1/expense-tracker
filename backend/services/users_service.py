@@ -22,9 +22,6 @@ class UsersService:
     def register(self, login, password, budget=0):
         create_user(login, password, budget)
 
-    def register_user(self, login, password, budget=0):
-        self.register(login, password, budget)
-
     def check_password(self, login, password):
         user = get_user_by_username(login)
         if user is None:

@@ -73,8 +73,8 @@ def create_app() -> Flask:
         data = request.get_json()
         lgn = data["login"]
         password = data["password"]
-        budget = data.get("budget")
-        users_service.register_user(lgn, password, budget)
+        budget = data.get("budget", 0)
+        users_service.register(lgn, password, budget)
         return "", 200
 
     @app.post("/api/v1/login")

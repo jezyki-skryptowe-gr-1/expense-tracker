@@ -7,6 +7,7 @@ from typing import Optional
 def hash_password(password: str) -> str:
     return hashlib.sha256(password.encode()).hexdigest()
 
+
 def create_user(username, password, budget=0):
     password_hash = hash_password(password)
 
