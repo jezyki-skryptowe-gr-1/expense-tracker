@@ -96,19 +96,19 @@ def create_app() -> Flask:
         else:
             return "", 401
 
-     @app.post("/api/v1/logout")
-     @jwt_required(optional=True)
-     def logout():
-         response = jsonify({"msg": "logout successful"})
-         unset_access_cookies(response)
-         unset_refresh_cookies(response)
-         return response, 200
+    @app.post("/api/v1/logout")
+    @jwt_required(optional=True)
+    def logout():
+        response = jsonify({"msg": "logout successful"})
+        unset_access_cookies(response)
+        unset_refresh_cookies(response)
+        return response, 200
 
-     @app.put("/api/v1/refresh_token")
-     @jwt_required(refresh=True)
-     def refresh_token():
-         # zwraca cookie http-only
-         lgn = get_jwt_identity()
+    @app.put("/api/v1/refresh_token")
+    @jwt_required(refresh=True)
+    def refresh_token():
+        # zwraca cookie http-only
+        lgn = get_jwt_identity()
         response = {
             "auth_token": create_access_token(identity=lgn),
             "refresh_token": create_refresh_token(identity=lgn)
