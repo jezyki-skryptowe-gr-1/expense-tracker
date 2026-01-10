@@ -12,7 +12,10 @@ apiClient.interceptors.response.use(
     },
     async (error) => {
         const originalRequest = error.config;
-        if (error.response && error.response.status === 401 && !originalRequest._retry) {
+        // Don't retry if this is already a refresh token request
+        const isRefreshRequest = originalRequest.url?.includes('/refresh_token');
+        
+        if (error.response && error.response.status === 401 && !originalRequest._retry && !isRefreshRequest) {
             originalRequest._retry = true;
             try {
                 await apiClient.put('/v1/refresh_token');
