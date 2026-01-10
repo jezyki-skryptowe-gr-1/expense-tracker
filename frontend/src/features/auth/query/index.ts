@@ -13,8 +13,12 @@ export const useLoginMutation = () => {
 };
 
 export const useSignupMutation = () => {
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: (data: SignupFormData) => authApi.signup(data),
+        onSuccess: () => {
+            queryClient.invalidateQueries({ queryKey: ['user'] });
+        },
     });
 };
 
