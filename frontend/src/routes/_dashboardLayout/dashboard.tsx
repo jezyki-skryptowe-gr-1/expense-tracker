@@ -25,7 +25,7 @@ export const Route = createFileRoute('/_dashboardLayout/dashboard')({
     loader: async ({ context: { queryClient }, deps }) => {
         const expensesParams = {
             search: deps.search,
-            category: deps.category === 'all' ? undefined : deps.category,
+            category: deps.category,
             from: deps.from,
             to: deps.to,
             minAmount: deps.minAmount,

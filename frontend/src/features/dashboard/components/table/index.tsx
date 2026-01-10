@@ -140,22 +140,17 @@ export function TransactionsTable() {
     }
 
     const confirmDelete = () => {
-        console.log("[DEBUG_LOG] confirmDelete called, expenseToDelete:", expenseToDelete)
         if (expenseToDelete !== null) {
             deleteExpenseMutation.mutate(expenseToDelete, {
                 onSuccess: () => {
-                    console.log("[DEBUG_LOG] delete success")
                     toast.success('Wydatek został usunięty')
                     setExpenseToDelete(null)
                     setDeleteModalOpen(false)
                 },
                 onError: (error: any) => {
-                    console.error("[DEBUG_LOG] delete error:", error)
                     toast.error(error.response?.data?.message || 'Nie udało się usunąć wydatku')
                 }
             })
-        } else {
-            console.warn("[DEBUG_LOG] confirmDelete called but expenseToDelete is null")
         }
     }
 
