@@ -1,6 +1,7 @@
 "use client"
 
 import { useForm } from 'react-hook-form'
+import { useEffect } from 'react'
 import { zodResolver } from '@hookform/resolvers/zod'
 import {
     Dialog,
@@ -42,6 +43,17 @@ export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
             date: new Date()
         }
     })
+
+    useEffect(() => {
+        if (open) {
+            form.reset({
+                description: '',
+                amount: '',
+                category: '',
+                date: new Date()
+            })
+        }
+    }, [open, form])
 
     const onSubmit = (data: AddExpenseFormData) => {
         addExpenseMutation.mutate({
@@ -95,9 +107,9 @@ export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
                                     render={({ field }) => (
                                         <FormItem>
                                             <FormLabel>Kategoria</FormLabel>
-                                            <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                            <Select onValueChange={field.onChange} value={field.value}>
                                                 <FormControl>
-                                                    <SelectTrigger>
+                                                    <SelectTrigger className='w-full'>
                                                         <SelectValue placeholder="Wybierz..." />
                                                     </SelectTrigger>
                                                 </FormControl>
@@ -158,7 +170,9 @@ export function AddExpenseModal({ open, onOpenChange }: AddExpenseModalProps) {
                                                     <Calendar
                                                         mode="single"
                                                         selected={field.value}
-                                                        onSelect={field.onChange}
+                                                        onSelect={(date) => {
+                                                            if (date) field.onChange(date)
+                                                        }}
                                                         disabled={(date) =>
                                                             date > new Date() || date < new Date("1900-01-01")
                                                         }
