@@ -15,7 +15,7 @@ apiClient.interceptors.response.use(
         if (error.response && error.response.status === 401 && !originalRequest._retry) {
             originalRequest._retry = true;
             try {
-                await axios.put(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/v1/refresh_token`, {}, { withCredentials: true });
+                await apiClient.put('/v1/refresh_token');
                 return apiClient(originalRequest);
             } catch (refreshError) {
                 router.navigate({ to: '/' });
