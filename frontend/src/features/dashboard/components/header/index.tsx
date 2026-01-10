@@ -17,7 +17,7 @@ export function DashboardHeader({ onCategoriesClick, onAddExpenseClick, onEditPr
     const { data: user, isLoading } = useUserQuery()
 
     return (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 md:p-4">
+        <div className="sticky top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60 border-b flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 p-4 md:p-4">
             <div>
                 <h1 className="text-3xl md:text-4xl font-bold tracking-tight">Dashboard</h1>
                 <div className="text-muted-foreground mt-1 min-h-[1.5rem] flex items-center">

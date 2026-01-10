@@ -6,14 +6,14 @@ import { Badge } from "@/components/ui/badge"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import FormInput from "@/components/formInput"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
-import {Search, X, DollarSign, Filter} from "lucide-react"
+import { X, DollarSign, Filter} from "lucide-react"
 import { useNavigate, useSearch } from "@tanstack/react-router"
 import { useCategoriesQuery, useExpensesQuery } from "../../query"
 import { Skeleton } from "@/components/ui/skeleton"
 import { format, startOfMonth } from "date-fns"
 import { useEffect } from "react"
 import { useForm } from "react-hook-form"
-import { Form, FormControl, FormField, FormItem } from "@/components/ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form"
 
 interface FilterFormValues {
     search: string
@@ -122,47 +122,7 @@ export function TransactionsTable() {
 
                     <Form {...form}>
                         <form onSubmit={form.handleSubmit(handleSearch)} className="flex flex-col gap-3">
-                            <div className="flex flex-col sm:flex-row gap-3">
-                                <FormInput<FilterFormValues>
-                                    name="search"
-                                    placeholder="Szukaj transakcji..."
-                                    icon={Search}
-                                    disabled={isPending}
-                                />
-                                <FormField
-                                    control={form.control}
-                                    name="category"
-                                    render={({ field }) => (
-                                        <FormItem>
-                                            <Select
-                                                onValueChange={field.onChange}
-                                                value={field.value}
-                                                disabled={isPending}
-                                            >
-                                                <FormControl>
-                                                    <SelectTrigger className="w-full sm:w-[180px]">
-                                                        <SelectValue placeholder="Kategoria" />
-                                                    </SelectTrigger>
-                                                </FormControl>
-                                                <SelectContent>
-                                                    <SelectItem value="all">Wszystkie</SelectItem>
-                                                    {categoriesLoading ? (
-                                                        <div className="p-2 text-xs text-muted-foreground">Ładowanie...</div>
-                                                    ) : (
-                                                        categories.map((category: any) => (
-                                                            <SelectItem key={category.category_id} value={category.name}>
-                                                                {category.name}
-                                                            </SelectItem>
-                                                        ))
-                                                    )}
-                                                </SelectContent>
-                                            </Select>
-                                        </FormItem>
-                                    )}
-                                />
-                            </div>
-
-                            <div className="flex flex-row gap-3 items-center">
+                            <div className="flex flex-col md:flex-row gap-3 items-start">
                                 <FormInput<FilterFormValues>
                                     name="minAmount"
                                     label="Kwota od"
@@ -179,9 +139,44 @@ export function TransactionsTable() {
                                     icon={DollarSign}
                                     disabled={isPending}
                                 />
+
+                                <div className="flex-1 md:min-w-[180px] min-w-full">
+                                    <FormField
+                                        control={form.control}
+                                        name="category"
+                                        render={({ field }) => (
+                                            <FormItem>
+                                                <FormLabel className="mb-1 font-semibold">Kategoria</FormLabel>
+                                                <Select
+                                                    onValueChange={field.onChange}
+                                                    value={field.value}
+                                                    disabled={isPending}
+                                                >
+                                                    <FormControl>
+                                                        <SelectTrigger className="w-full h-11! border-border/50 focus:ring-primary">
+                                                            <SelectValue placeholder="Kategoria" />
+                                                        </SelectTrigger>
+                                                    </FormControl>
+                                                    <SelectContent>
+                                                        <SelectItem value="all">Wszystkie</SelectItem>
+                                                        {categoriesLoading ? (
+                                                            <div className="p-2 text-xs text-muted-foreground">Ładowanie...</div>
+                                                        ) : (
+                                                            categories.map((category: any) => (
+                                                                <SelectItem key={category.category_id} value={category.name}>
+                                                                    {category.name}
+                                                                </SelectItem>
+                                                            ))
+                                                        )}
+                                                    </SelectContent>
+                                                </Select>
+                                            </FormItem>
+                                        )}
+                                    />
+                                </div>
                             </div>
 
-                            <div className="flex flex-row gap-3 items-center">
+                            <div className="flex flex-row gap-3 items-start">
                                 <FormInput<FilterFormValues>
                                     name="from"
                                     label="Od"

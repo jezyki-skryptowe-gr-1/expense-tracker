@@ -24,12 +24,12 @@ const MainDashboardView = () => {
     }
 
     return (
-        <div className="min-h-screen p-4 md:p-8 pt-20 md:pt-24 space-y-6">
+        <div className="min-h-screen px-4 pb-4 md:pb-4 md:px-8 space-y-6">
             <DashboardHeader onCategoriesClick={() => setCategoriesModalOpen(true)} onAddExpenseClick={() => setAddExpenseModalOpen(true)} onEditProfile={handleEditProfile} onLogout={handleLogout} />
             <SummaryCards />
             {/*<ChartsSection />*/}
             <TransactionsTable />
-            <Suspense fallback={<div>Loading...</div>}>
+            <Suspense fallback={<div className="flex justify-center items-center h-full">Ładowanie...</div>}>
                 <CategoriesListModal open={categoriesModalOpen} onOpenChange={setCategoriesModalOpen} />
                 <AddExpenseModal open={addExpenseModalOpen} onOpenChange={setAddExpenseModalOpen} />
                 <EditProfileModal open={editProfileModalOpen} onOpenChange={setEditProfileModalOpen} />

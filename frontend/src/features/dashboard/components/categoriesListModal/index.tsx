@@ -6,13 +6,10 @@ import {
     DialogTitle,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { Tag, Trash2, Plus, Loader2 } from 'lucide-react'
+import { Tag, Plus, Loader2 } from 'lucide-react'
 import { useState } from "react"
-import { DeleteConfirmationModal } from "@/components/deleteConfirmationModal"
 import { AddCategoryModal } from "../addCategoryModal"
-import { useCategoriesQuery, useDeleteCategoryMutation } from "../../query"
-import { toast } from "react-toastify"
-import type {Category} from "@/features/dashboard/types";
+import { useCategoriesQuery } from "../../query"
 
 interface CategoriesListModalProps {
     open: boolean
@@ -21,30 +18,7 @@ interface CategoriesListModalProps {
 
 export function CategoriesListModal({ open, onOpenChange }: CategoriesListModalProps) {
     const { data, isLoading } = useCategoriesQuery()
-    const deleteCategoryMutation = useDeleteCategoryMutation()
-    const [deleteModalOpen, setDeleteModalOpen] = useState(false)
-    const [selectedCategory, setSelectedCategory] = useState<Category | null>(null)
     const [addModalOpen, setAddModalOpen] = useState(false)
-
-    const handleDeleteClick = (category: Category) => {
-        setSelectedCategory(category)
-        setDeleteModalOpen(true)
-    }
-
-    const handleDeleteConfirm = () => {
-        if (!selectedCategory) return
-
-        deleteCategoryMutation.mutate(selectedCategory.category_id, {
-            onSuccess: () => {
-                toast.success('Kategoria została usunięta')
-                setDeleteModalOpen(false)
-                setSelectedCategory(null)
-            },
-            onError: (error: any) => {
-                toast.error(error.response?.data?.message || 'Nie udało się usunąć kategorii')
-            }
-        })
-    }
 
     return (
         <>
@@ -86,21 +60,6 @@ export function CategoriesListModal({ open, onOpenChange }: CategoriesListModalP
                                                     <p className="font-medium">{category.name}</p>
                                                 </div>
                                             </div>
-                                            <div className="flex items-center gap-2">
-                                                <Button
-                                                    size="icon"
-                                                    variant="ghost"
-                                                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
-                                                    onClick={() => handleDeleteClick(category)}
-                                                    disabled={deleteCategoryMutation.isPending}
-                                                >
-                                                    {deleteCategoryMutation.isPending && selectedCategory?.category_id === category.category_id ? (
-                                                        <Loader2 className="size-4 animate-spin" />
-                                                    ) : (
-                                                        <Trash2 className="size-4" />
-                                                    )}
-                                                </Button>
-                                            </div>
                                         </div>
                                     ))}
                                 </div>
@@ -113,13 +72,7 @@ export function CategoriesListModal({ open, onOpenChange }: CategoriesListModalP
                     </div>
                 </DialogContent>
             </Dialog>
-            <DeleteConfirmationModal
-                open={deleteModalOpen}
-                onOpenChange={setDeleteModalOpen}
-                title={`Usuń kategorię "${selectedCategory?.name}"`}
-                description="Czy na pewno chcesz usunąć tę kategorię?"
-                onConfirm={handleDeleteConfirm}
-            />
+
             <AddCategoryModal
                 open={addModalOpen}
                 onOpenChange={setAddModalOpen}
