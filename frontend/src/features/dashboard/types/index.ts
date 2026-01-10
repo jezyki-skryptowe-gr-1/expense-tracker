@@ -62,4 +62,5 @@ export interface AddCategoryRequest {
 export interface UpdateCategoryRequest {
     category_id: number;
     category: string;
+    color?: string;
 }

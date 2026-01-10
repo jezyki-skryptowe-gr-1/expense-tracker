@@ -4,6 +4,7 @@ import { SummaryCards } from "../../components/summaryCards";
 import { TransactionsTable } from "../../components/table";
 import { lazy, Suspense, useState } from "react";
 import { useRouter } from "@tanstack/react-router";
+import { useLogoutMutation } from "@/features/auth/query";
 
 const CategoriesListModal = lazy(() => import("../../components/categoriesListModal").then(module => ({ default: module.CategoriesListModal })));
 const AddExpenseModal = lazy(() => import("../../components/addExpenseModal").then(module => ({ default: module.AddExpenseModal })));
@@ -11,6 +12,7 @@ const EditProfileModal = lazy(() => import("../../components/editProfileModal").
 
 const MainDashboardView = () => {
     const router = useRouter()
+    const { mutate: logout } = useLogoutMutation();
     const [categoriesModalOpen, setCategoriesModalOpen] = useState(false);
     const [addExpenseModalOpen, setAddExpenseModalOpen] = useState(false);
     const [editProfileModalOpen, setEditProfileModalOpen] = useState(false);
@@ -20,7 +22,11 @@ const MainDashboardView = () => {
     }
 
     const handleLogout = () => {
-        router.navigate({ to: "/", viewTransition: true })
+        logout(undefined, {
+            onSuccess: () => {
+                router.navigate({ to: "/", viewTransition: true })
+            }
+        })
     }
 
     return (
