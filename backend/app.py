@@ -20,8 +20,10 @@ from flask_jwt_extended import (
     get_jwt_identity,
     jwt_required,
     set_access_cookies,
-    set_refresh_cookies
-)
+    set_refresh_cookies,
+    unset_access_cookies,
+    unset_refresh_cookies
+ )
 
 
 def create_app() -> Flask:
@@ -94,11 +96,19 @@ def create_app() -> Flask:
         else:
             return "", 401
 
-    @app.put("/api/v1/refresh_token")
-    @jwt_required(refresh=True)
-    def refresh_token():
-        # zwraca cookie http-only
-        lgn = get_jwt_identity()
+     @app.post("/api/v1/logout")
+     @jwt_required(optional=True)
+     def logout():
+         response = jsonify({"msg": "logout successful"})
+         unset_access_cookies(response)
+         unset_refresh_cookies(response)
+         return response, 200
+
+     @app.put("/api/v1/refresh_token")
+     @jwt_required(refresh=True)
+     def refresh_token():
+         # zwraca cookie http-only
+         lgn = get_jwt_identity()
         response = {
             "auth_token": create_access_token(identity=lgn),
             "refresh_token": create_refresh_token(identity=lgn)
@@ -152,11 +162,13 @@ def create_app() -> Flask:
         to_param = request.args.get("to")
         min_amount_param = request.args.get("minAmount")
         max_amount_param = request.args.get("maxAmount")
+        category_id = request.args.get("category")
 
         from_date = None
         to_date = None
         min_amount = None
         max_amount = None
+        category_id = None
 
         if from_param:
             try:
@@ -188,11 +200,18 @@ def create_app() -> Flask:
         if min_amount is not None and max_amount is not None and min_amount > max_amount:
             return jsonify({"error": "minAmount cannot be greater than maxAmount"}), 400
 
+        if category_id_param:
+            try:
+                category_id = int(category_id_param)
+            except ValueError:
+                return jsonify({"error": "Invalid categoryId format. Expected integer value"}), 400
+
         expenses_list = expenses_service.get_expenses_list(
             from_date=from_date,
             to_date=to_date,
             min_amount=min_amount,
             max_amount=max_amount,
+            category_id=category_id,
         )
         return jsonify(expenses_list), 200
 

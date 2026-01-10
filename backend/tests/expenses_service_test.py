@@ -102,3 +102,22 @@ def test_get_expenses_list_filters_by_amount(monkeypatch):
     assert amounts(service.get_expenses_list(from_date=date(2026, 1, 2))) == [20.0, 30.0]
     assert amounts(service.get_expenses_list(to_date=date(2026, 1, 2))) == [10.0, 20.0]
     assert amounts(service.get_expenses_list(from_date=date(2026, 1, 2), to_date=date(2026, 1, 2))) == [20.0]
+
+
+def test_get_expenses_list_filters_by_category(monkeypatch):
+    _set_user("u4", 4)
+    _set_category(4, 4, "food")
+    _set_category(5, 4, "travel")
+    monkeypatch.setattr("services.expenses_service.get_jwt_identity", lambda: "u4")
+    service = ExpensesService.get_singleton()
+
+    service.add_expense(4, 10, transaction_date=date(2026, 2, 1))
+    service.add_expense(5, 20, transaction_date=date(2026, 2, 2))
+    service.add_expense(4, 30, transaction_date=date(2026, 2, 3))
+
+    def categories(expenses):
+        return sorted(t.category_id for t in expenses)
+
+    assert categories(service.get_expenses_list()) == [4, 4, 5]
+    assert categories(service.get_expenses_list(category_id=4)) == [4, 4]
+    assert categories(service.get_expenses_list(category_id=5)) == [5]

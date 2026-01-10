@@ -26,7 +26,7 @@ def create_transaction(transaction: Transaction):
             return transaction_id
 
 
-def find_by_user(user_id, from_date=None, to_date=None, min_amount=None, max_amount=None) -> list[Transaction]:
+def find_by_user(user_id, from_date=None, to_date=None, min_amount=None, max_amount=None, category_id=None) -> list[Transaction]:
     with db.connection.get_connection() as conn:
         with conn.cursor() as cur:
             query = "SELECT * FROM transactions WHERE user_id = %s"
@@ -47,6 +47,10 @@ def find_by_user(user_id, from_date=None, to_date=None, min_amount=None, max_amo
             if max_amount is not None:
                 query += " AND amount <= %s"
                 params.append(max_amount)
+
+            if category_id is not None:
+                query += " AND category_id = %s"
+                params.append(category_id)
 
             cur.execute(query, params)
             return [
