@@ -16,7 +16,7 @@ import FormInput from '@/components/formInput'
 import { User, DollarSign } from 'lucide-react'
 import { z } from 'zod'
 import { useUserQuery } from '@/features/auth/query'
-import { useUpdateUserMutation } from '../../query'
+import {useSummaryQuery, useUpdateUserMutation} from '../../query'
 import { useEffect } from 'react'
 import { toast } from 'react-toastify'
 
@@ -35,19 +35,20 @@ interface EditProfileModalProps {
 
 export function EditProfileModal({ open, onOpenChange }: EditProfileModalProps) {
     const { data: user } = useUserQuery()
+    const { data: summary } = useSummaryQuery()
     const updateUserMutation = useUpdateUserMutation()
 
     const form = useForm<EditProfileFormData>({
         resolver: zodResolver(editProfileSchema),
         defaultValues: {
-            budget: '0'
+            budget: summary?.totalBalance.toString() || '0'
         }
     })
 
     useEffect(() => {
         if (user && open) {
             form.reset({
-                budget: '0'
+                budget: summary?.totalBalance.toString() || '0'
             })
         }
     }, [user, open, form])

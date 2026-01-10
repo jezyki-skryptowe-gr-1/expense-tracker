@@ -53,7 +53,7 @@ export function SummaryCards() {
                     <TrendingDown className="size-4 text-destructive" />
                 </CardHeader>
                 <CardContent>
-                    <div className="text-2xl font-bold text-destructive">-{monthlyExpenses.toFixed(2)} PLN</div>
+                    <div className="text-2xl font-bold text-destructive">{monthlyExpenses.toFixed(2)} PLN</div>
                     <p className="text-xs text-muted-foreground mt-1">
                         {percentageUsed.toFixed(0)}% budżetu wykorzystane
                     </p>

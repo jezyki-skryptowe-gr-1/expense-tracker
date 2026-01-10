@@ -38,7 +38,7 @@ export function CategoriesListModal({ open, onOpenChange }: CategoriesListModalP
                                 Dodaj kategorię
                             </Button>
                         </div>
-                        <div className="max-h-[400px] overflow-y-auto pr-4">
+                        <div className="max-h-[400px] overflow-y-auto">
                             {isLoading ? (
                                 <div className="flex items-center justify-center py-8">
                                     <Loader2 className="size-8 animate-spin text-primary" />
