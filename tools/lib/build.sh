@@ -31,6 +31,7 @@ function start-frontend() {
 }
 
 function test-backend() {
+    build-backend && \
     cd ${BACKEND_DIR} && \
     pytest
 }
